@@ -2,356 +2,299 @@
 {% block title %}懸賞板 — 美食獵人執照{% endblock %}
 {% block head %}
 <style>
+/* ============================================================
+   懸賞板 — 木板告示牆質感版
+   設計語言對齊 tavern.html：木紋、油燈、羊皮紙、火漆章、鐵釘
+   ============================================================ */
 :root{
-  --night:#1a1410; --wood-dark:#241a11; --wood:#3a2817;
-  --parchment:#f0e2c0; --parchment-dark:#e3d0a4;
-  --ink:#3a2c18; --ink-soft:#6b5638;
-  --seal:#b5402e; --gold:#e0b04a; --gold-deep:#a87a1e;
-  --ember:#ff8a3d;
-}
-body{ background:var(--night); }
-
-.phone-wrap{
-  max-width:430px; margin:0 auto; min-height:100dvh;
-  background:
-    radial-gradient(120% 60% at 50% -8%, rgba(255,180,90,.12), transparent 60%),
-    linear-gradient(180deg,#241a11 0%,#1d1510 45%,#160f0a 100%);
+  --night:#15100b;
+  --wood-1:#3a2817; --wood-2:#2c1d11; --wood-3:#241808;
+  --parch-hi:#f6ead0; --parch:#ecdcb4; --parch-lo:#dcc794;
+  --ink:#2b2012; --ink-soft:#7a6038;
+  --seal:#b5402e; --seal-deep:#8a2c1c;
+  --gold:#d9a441; --gold-deep:#9c7320;
 }
 
-/* ── 木板標題 ── */
-.board-sign{
-  margin:1rem 1rem .75rem;
+/* 木板牆背景：多層疊出真實木紋 */
+body{
   background:
-    repeating-linear-gradient(90deg,transparent 0,transparent 18px,rgba(0,0,0,.05) 18px,rgba(0,0,0,.05) 19px),
-    linear-gradient(180deg,#3d2810 0%,#2a1d0e 60%,#1e1408 100%);
-  border:2px solid #6a4a20;
-  border-radius:6px;
-  padding:1rem 1.5rem .9rem;
-  text-align:center;
-  position:relative;
-  box-shadow:0 4px 16px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.06);
+    repeating-linear-gradient(90deg,
+      transparent 0 86px, rgba(0,0,0,.45) 86px 88px,
+      rgba(255,220,160,.04) 88px 90px, transparent 90px 92px),
+    repeating-linear-gradient(2deg, rgba(0,0,0,.05) 0 3px, transparent 3px 9px),
+    radial-gradient(ellipse 40px 16px at 22% 14%, rgba(0,0,0,.3), transparent 70%),
+    radial-gradient(ellipse 30px 12px at 68% 38%, rgba(0,0,0,.25), transparent 70%),
+    radial-gradient(ellipse 50px 20px at 40% 72%, rgba(0,0,0,.22), transparent 70%),
+    radial-gradient(120% 36% at 50% -4%, rgba(255,180,90,.14), transparent 60%),
+    linear-gradient(170deg, var(--wood-1), var(--wood-2) 55%, var(--wood-3));
+  box-shadow:inset 0 0 80px rgba(0,0,0,.6);
 }
-/* 鐵釘（上兩角 via pseudo，下兩角 via span） */
-.board-sign::before,.board-sign::after{
-  content:''; position:absolute;
-  width:8px; height:8px; border-radius:50%;
-  background:radial-gradient(circle at 35% 35%,#c8a060,#6a4a20);
-  box-shadow:0 1px 3px rgba(0,0,0,.5);
-  top:.6rem;
-}
-.board-sign::before{ left:.65rem; }
-.board-sign::after { right:.65rem; }
-.bolt-b{
-  position:absolute; bottom:.6rem;
-  width:8px; height:8px; border-radius:50%;
-  background:radial-gradient(circle at 35% 35%,#c8a060,#6a4a20);
-  box-shadow:0 1px 3px rgba(0,0,0,.5);
-}
-.bolt-bl{ left:.65rem; } .bolt-br{ right:.65rem; }
+.board-wrap{ padding:22px 18px 40px; }
+
+/* ── 烙印招牌 ── */
+.board-sign{ text-align:left; margin-bottom:4px; }
 .board-sign h1{
-  font-family:'DotGothic16'; font-size:1.5rem; color:var(--gold);
-  text-shadow:0 1px 8px rgba(224,176,74,.4); margin-bottom:.2rem;
+  font-family:'DotGothic16'; font-size:30px; letter-spacing:.08em; color:#e9c987;
+  text-shadow:0 1px 0 #000, 0 2px 1px rgba(0,0,0,.6), 0 0 18px rgba(217,164,65,.2);
 }
-.board-sign p{ font-size:.75rem; color:var(--parchment); opacity:.5; }
-
-/* ── 日期橫幅 ── */
-.date-banner{
-  text-align:center; font-size:.75rem;
-  color:var(--parchment); opacity:.5;
-  padding:.1rem 1rem .6rem; letter-spacing:.1em;
+.board-sign .mode{
+  display:inline-flex; align-items:center; gap:6px; margin-top:4px;
+  font-size:13px; color:#c9a866; font-family:'DotGothic16'; letter-spacing:.05em;
 }
+.board-sign .mode .dot{ width:7px; height:7px; border-radius:50%; background:var(--gold); box-shadow:0 0 8px var(--gold); }
+.date-banner{ font-size:12px; color:#9a8259; opacity:.8; letter-spacing:.06em; margin:8px 0 16px; }
 
-/* ── 等級條 ── */
+/* ── 等級條：壓在木牌上 ── */
 .level-bar{
-  margin:0 1rem .9rem;
-  background:linear-gradient(180deg,rgba(58,40,23,.7),rgba(30,22,15,.7));
-  border:1px solid rgba(224,176,74,.25);
-  border-radius:6px; padding:.55rem .8rem;
+  margin:0 0 20px; border-radius:5px; padding:10px 14px;
+  background:linear-gradient(180deg,#4a3520,#382716);
+  border:1px solid #1c1208;
+  box-shadow:0 3px 8px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,220,160,.08);
 }
-.level-row{
-  display:flex; justify-content:space-between; align-items:center; margin-bottom:.35rem;
-}
-.level-lv  { font-family:'DotGothic16'; font-size:.75rem; color:var(--gold); }
-.level-name{ font-size:.75rem; color:var(--parchment); opacity:.7; margin-left:.3rem; }
-.level-exp { font-size:.68rem; color:var(--parchment); opacity:.4; font-family:'DotGothic16'; }
-.progress-track{
-  height:7px; background:rgba(0,0,0,.4); border-radius:4px; overflow:hidden;
-  border:1px solid rgba(0,0,0,.4);
-}
+.level-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.level-lv{ font-family:'DotGothic16'; font-size:13px; color:var(--gold); }
+.level-name{ font-size:12px; color:#e8cfa0; opacity:.85; }
+.level-exp{ font-family:'DotGothic16'; font-size:11px; color:#c9a866; }
+.progress-track{ height:7px; background:rgba(0,0,0,.45); border-radius:4px; overflow:hidden; border:1px solid rgba(0,0,0,.5); }
 .progress-fill{
-  height:100%;
-  background:linear-gradient(90deg,var(--gold-deep),var(--gold) 70%,#ffe6a8);
-  box-shadow:0 0 8px rgba(224,176,74,.4);
-  border-radius:4px; transition:width .6s ease;
+  height:100%; border-radius:4px; width:0%;
+  background:linear-gradient(90deg,var(--seal),var(--gold));
+  box-shadow:0 0 8px rgba(217,164,65,.5); transition:width .8s ease;
 }
 
-/* ── 懸賞卡片 ── */
-.quest-card{
-  margin:0 1rem .9rem;
-  background:linear-gradient(160deg,#f5e8c8 0%,#ecdaaa 100%);
-  border:1px solid #c8a060;
-  border-radius:5px;
-  position:relative; overflow:hidden;
-  box-shadow:0 5px 16px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.5);
+/* ── 邊境木牌 ── */
+.notice{
+  margin:0 0 22px; text-align:center; position:relative;
+  background:linear-gradient(180deg,#4a3520,#382716);
+  border:1px solid #1c1208; border-radius:3px; padding:10px 28px;
+  font-size:13px; color:#e8cfa0; letter-spacing:.04em;
+  box-shadow:0 3px 8px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,220,160,.1);
 }
-/* 羊皮紙橫線質感 */
-.quest-card::after{
-  content:''; position:absolute; inset:0; pointer-events:none;
-  background:repeating-linear-gradient(180deg,
-    transparent 0,transparent 22px,
-    rgba(160,120,60,.06) 22px,rgba(160,120,60,.06) 23px);
+.notice::before,.notice::after{
+  content:""; position:absolute; top:50%; transform:translateY(-50%);
+  width:8px; height:8px; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#6b6256,#2a2620);
+}
+.notice::before{ left:8px; } .notice::after{ right:8px; }
+
+/* ── 懸賞令：羊皮紙 + 釘子 + 火漆章 ── */
+.bounty{
+  position:relative; margin:0 4px 30px; padding:22px 20px 18px;
+  border-radius:2px; color:var(--ink);
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255,255,255,.5), transparent 40%),
+    radial-gradient(ellipse 60px 40px at 85% 88%, rgba(150,110,60,.18), transparent 70%),
+    radial-gradient(ellipse 30px 30px at 12% 80%, rgba(150,110,60,.14), transparent 70%),
+    repeating-linear-gradient(58deg, rgba(160,120,70,.04) 0 2px, transparent 2px 5px),
+    linear-gradient(160deg, var(--parch-hi), var(--parch) 55%, var(--parch-lo));
+  box-shadow:0 1px 0 rgba(255,255,255,.4) inset, 0 10px 18px rgba(0,0,0,.45), 0 2px 4px rgba(0,0,0,.3);
+  clip-path:polygon(0 1%, 99% 0, 100% 98%, 1% 100%);
+}
+.bounty:nth-child(odd){ transform:rotate(-1.2deg); }
+.bounty:nth-child(even){ transform:rotate(.9deg); }
+.bounty::after{
+  content:""; position:absolute; inset:0; border-radius:2px; pointer-events:none;
+  box-shadow:inset 0 0 0 1px rgba(120,90,50,.25), inset 0 0 30px rgba(140,100,55,.12);
 }
 
-/* 卡頂：分類標籤 + 火漆章 */
-.card-top{
-  display:flex; justify-content:space-between; align-items:center;
-  padding:.6rem .75rem .35rem;
+/* 鐵釘 */
+.nail{ position:absolute; top:8px; width:16px; height:16px; border-radius:50%; z-index:3;
+  background:
+    radial-gradient(circle at 36% 30%, #e8e2d4 0 16%, transparent 17%),
+    radial-gradient(circle at 50% 50%, #8a8073, #45403a 60%, #1d1a16);
+  box-shadow:0 2px 4px rgba(0,0,0,.6), inset 0 -1px 2px rgba(0,0,0,.5);
 }
-.category-tag{
-  font-size:.68rem; font-weight:700; color:#6a3a10;
-  background:rgba(181,64,46,.12);
-  border:1px solid rgba(181,64,46,.28);
-  padding:.15rem .55rem; border-radius:3px; letter-spacing:.05em;
-}
+.nail.l{ left:14px; transform:rotate(-8deg); }
+.nail.r{ right:14px; transform:rotate(6deg); }
 
-/* 火漆章 wax seal */
-.grade-badge{
-  width:2.5rem; height:2.5rem; border-radius:50%;
-  display:flex; align-items:center; justify-content:center;
-  font-family:'DotGothic16'; font-size:1.15rem; font-weight:700;
-  box-shadow:0 2px 8px rgba(0,0,0,.45), inset 0 -2px 3px rgba(0,0,0,.25);
-  flex-shrink:0; position:relative;
+/* 火漆分級章 */
+.seal{
+  position:absolute; top:14px; right:16px; width:50px; height:50px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; z-index:4;
+  font-family:'DotGothic16'; font-size:24px; font-weight:bold; color:#fff5e8;
+  transform:rotate(-10deg);
+  box-shadow:0 3px 6px rgba(0,0,0,.4), inset 0 2px 4px rgba(255,255,255,.25), inset 0 -3px 6px rgba(0,0,0,.35);
+  clip-path:polygon(50% 0,63% 8%,78% 4%,84% 18%,97% 26%,92% 42%,100% 54%,90% 66%,93% 82%,77% 84%,67% 96%,52% 89%,37% 97%,28% 84%,12% 85%,16% 68%,4% 56%,12% 43%,5% 27%,20% 22%,25% 7%,40% 11%);
+  text-shadow:0 1px 2px rgba(0,0,0,.5);
 }
-.grade-badge::after{
-  content:''; position:absolute; top:15%; left:20%;
-  width:30%; height:30%; border-radius:50%;
-  background:rgba(255,255,255,.35);
-}
-/* S = 金章 */
-.grade-S{ background:radial-gradient(circle at 35% 35%,#fce678,#c89008); color:#2a1800; }
-/* A = 紅章（高評委託） */
-.grade-A{ background:radial-gradient(circle at 35% 35%,#e87878,#9a1820); color:#fff; }
-/* B = 藍章（一般委託） */
-.grade-B{ background:radial-gradient(circle at 35% 35%,#7ab8e8,#1e4f8c); color:#fff; }
-/* C = 灰章（高風險委託） */
-.grade-C{ background:radial-gradient(circle at 35% 35%,#c8c8c0,#606058); color:#1a1a18; }
+.seal.S{ background:radial-gradient(circle at 38% 32%, #f0d68a, #d9a441 55%, #9c7320); }
+.seal.A{ background:radial-gradient(circle at 38% 32%, #d36c52, #b5402e 55%, #7e2417); }
+.seal.B{ background:radial-gradient(circle at 38% 32%, #6f93c4, #4a6fa5 55%, #344f78); }
+.seal.C{ background:radial-gradient(circle at 38% 32%, #9a9a8e, #6f6f64 55%, #4a4a40); }
 
-/* 卡片標題 */
-.card-title-row{ padding:.1rem .75rem .5rem; }
-.quest-title{ font-size:1.05rem; font-weight:700; color:#1e1008; line-height:1.35; }
-.shop-location{
-  display:flex; align-items:center; gap:.3rem;
-  font-size:.75rem; color:#6a4020; margin-top:.25rem; opacity:.85;
+.b-type{
+  font-family:'DotGothic16'; font-size:11px; letter-spacing:.18em; color:var(--seal);
+  border:1px solid var(--seal); display:inline-block; padding:1px 8px; border-radius:2px;
+  background:rgba(181,64,46,.06);
 }
-
-/* 分隔線（虛線羊皮紙風） */
-.card-divider{
-  margin:0 .75rem; border:none; border-top:1px dashed rgba(160,100,30,.4);
+.b-name{ font-family:'DotGothic16'; font-size:20px; line-height:1.3; margin:8px 0 2px; color:#2b2012; padding-right:50px; }
+.b-loc{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft); margin-bottom:14px; flex-wrap:wrap; }
+.tag-unknown{
+  display:inline-flex; align-items:center; gap:3px; background:#d8c294; color:#6a4f25;
+  font-size:11px; padding:2px 7px; border-radius:2px; border:1px dashed #a8884e;
 }
+.b-divider{ height:1px; background:repeating-linear-gradient(90deg,#b59a64 0 5px,transparent 5px 9px); margin:0 0 12px; }
 
-/* 詳細資訊 */
-.card-detail{ padding:.45rem .75rem; }
-.detail-row{ display:flex; align-items:flex-start; gap:.4rem; font-size:.75rem; color:#5a3818; margin-bottom:.2rem; }
-.detail-row .label{ opacity:.6; flex-shrink:0; }
-.detail-row .val  { font-weight:600; }
-.star-rating{ color:#c8800a; }
+.b-detail{ font-size:12.5px; color:#5a3818; margin-bottom:14px; line-height:1.7; }
+.b-detail .star{ color:#c8800a; letter-spacing:.05em; }
 
-/* 報酬 + 接令 */
-.card-footer{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:.5rem .75rem .65rem;
-  border-top:1px solid rgba(160,100,30,.22); margin-top:.1rem;
-}
-.reward-text{ font-family:'DotGothic16'; font-size:.82rem; color:#9a2010; }
+.b-foot{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; }
+.b-reward .lbl{ font-size:10px; color:var(--ink-soft); letter-spacing:.15em; }
+.b-reward .val{ font-family:'DotGothic16'; font-size:18px; color:#7a3a12; display:flex; align-items:center; gap:8px; margin-top:2px; flex-wrap:wrap; }
 .gem-pill{
-  display:inline-block; font-size:.6rem; font-weight:700;
-  background:var(--gold); color:#2a1000;
-  padding:.05rem .35rem; border-radius:2px; margin-left:.3rem; vertical-align:middle;
+  font-size:11px; background:linear-gradient(180deg,#f0d68a,#d9a441); color:#5a3a0a;
+  padding:2px 8px; border-radius:3px; font-family:'Noto Sans TC'; font-weight:700;
+  box-shadow:0 1px 2px rgba(0,0,0,.3); transform:rotate(-3deg); border:1px solid #b8882a;
 }
-.unk-pill{
-  display:inline-block; font-size:.6rem;
-  background:#888; color:#fff;
-  padding:.05rem .35rem; border-radius:2px;
-}
+
 .accept-btn{
-  display:inline-block;
-  background:linear-gradient(180deg,#3a2817,#241a0e);
-  color:var(--gold); border:1.5px solid rgba(224,176,74,.5);
-  padding:.42rem .95rem; border-radius:3px;
-  font-family:'DotGothic16'; font-size:.78rem; text-decoration:none;
-  letter-spacing:.04em; white-space:nowrap;
-  box-shadow:0 2px 6px rgba(0,0,0,.4);
+  font-family:'DotGothic16'; font-size:15px; letter-spacing:.06em; color:#f6ead0;
+  cursor:pointer; border:none; padding:11px 20px; border-radius:3px; white-space:nowrap; text-decoration:none;
+  background:linear-gradient(180deg,#b5402e,#8a2c1c);
+  box-shadow:0 3px 0 #5e1c11, 0 5px 10px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.2);
+  transition:transform .06s, box-shadow .06s;
 }
+.accept-btn:active{ transform:translateY(3px); box-shadow:0 0 0 #5e1c11, 0 2px 6px rgba(0,0,0,.35); }
 
 /* 已討伐蓋章 */
-.hunted-overlay{
-  position:absolute; inset:0; z-index:10;
-  background:rgba(24,16,6,.75);
-  display:flex; align-items:center; justify-content:center;
-}
+.hunted-overlay{ position:absolute; inset:0; z-index:10; background:rgba(30,20,8,.68); display:flex; align-items:center; justify-content:center; border-radius:2px; }
 .hunted-stamp{
-  border:3px solid var(--gold); color:var(--gold);
-  font-family:'DotGothic16'; font-size:1.3rem;
-  padding:.4rem 1.1rem; border-radius:4px;
-  transform:rotate(-12deg);
-  text-shadow:0 1px 4px rgba(0,0,0,.8);
-  box-shadow:0 0 0 1px rgba(0,0,0,.4);
+  border:3px solid var(--gold); color:var(--gold); font-family:'DotGothic16'; font-size:1.4rem;
+  padding:.4rem 1.1rem; border-radius:4px; transform:rotate(-12deg); text-shadow:0 1px 4px rgba(0,0,0,.8);
 }
 
-/* 邊境橫幅 */
-.state-banner{
-  text-align:center; font-family:'DotGothic16';
-  color:var(--gold); font-size:.8rem;
-  padding:.5rem 1.5rem .7rem; letter-spacing:.1em; opacity:.85;
-}
+/* 沉睡提示 */
+.sleeping-note{ text-align:center; margin:2px 4px 24px; font-size:12px; color:#9a8259; font-family:'DotGothic16'; letter-spacing:.05em; opacity:.85; }
+.sleeping-note::before{ content:"🌙 "; }
 
-/* 滿版狀態（sleeping / desolate）*/
+/* 全頁狀態（眾店皆眠 / 荒涼） */
 .state-full{ text-align:center; padding:3.5rem 2rem; }
-.state-icon { font-size:3rem; margin-bottom:.9rem; }
-.state-title{ font-family:'DotGothic16'; color:var(--gold); font-size:1.1rem; margin-bottom:.7rem; }
-.state-body { color:var(--parchment); opacity:.5; font-size:.85rem; line-height:1.9; }
-
-/* 風滾草 */
-@keyframes roll{
-  from{ transform:translateX(-80px) rotate(0deg); }
-  to  { transform:translateX(420px) rotate(720deg); }
-}
+.state-icon{ font-size:3rem; margin-bottom:1rem; }
+.state-title{ font-family:'DotGothic16'; color:var(--gold); font-size:1.15rem; margin-bottom:.8rem; text-shadow:0 0 14px rgba(217,164,65,.3); }
+.state-body{ color:var(--parch); opacity:.6; font-size:.88rem; line-height:1.9; }
+@keyframes roll{ from{ transform:translateX(-80px) rotate(0); } to{ transform:translateX(420px) rotate(720deg); } }
 .tumbleweed{ display:inline-block; font-size:2.8rem; animation:roll 7s linear infinite; }
 
 /* 回酒館 */
-.back-link{
-  display:block; text-align:center; margin:0 1rem 2.5rem;
-  color:var(--gold); border:1px solid rgba(224,176,74,.25);
-  border-radius:8px; padding:.75rem;
-  background:rgba(58,40,23,.35); text-decoration:none;
-  font-family:'DotGothic16'; font-size:.8rem; letter-spacing:.08em;
-  opacity:.75;
-}
+.back-link{ display:block; text-align:center; margin-top:8px; color:#b89a64; font-size:13px; font-family:'DotGothic16'; letter-spacing:.08em; text-decoration:none; }
+.back-link:hover{ color:var(--gold); }
+
+@media (prefers-reduced-motion:reduce){ *{ animation:none!important; transition:none!important; } }
 </style>
 {% endblock %}
 {% block content %}
-<div class="phone-wrap">
+<div class="board-wrap">
 
-<!-- 木板標題 -->
-<div class="board-sign">
-  <span class="bolt-b bolt-bl"></span>
-  <span class="bolt-b bolt-br"></span>
-  <h1>懸賞板</h1>
-  <p>{% if mode == 'expedition' %}遠征・{{ district }} 公會{% else %}獵人公會・開拓任務{% endif %}</p>
-</div>
-
-<!-- 日期 -->
-<p class="date-banner">── {{ date_header }} 的討伐名單 ──</p>
-
-<!-- 等級條 -->
-<div class="level-bar">
-  <div class="level-row">
-    <span class="level-lv">Lv.{{ level_info.level }}<span class="level-name">　{{ level_info.name }}</span></span>
-    <span class="level-exp">
-      {% if level_info.next_exp %}{{ level_info.total_exp }} / {{ level_info.next_exp }} EXP
-      {% else %}MAX{% endif %}
+  <!-- 烙印招牌 -->
+  <div class="board-sign">
+    <h1>懸賞板</h1>
+    <span class="mode">
+      <span class="dot"></span>
+      {% if mode == 'expedition' %}遠征・{{ district }}{% else %}開拓此地{% endif %}
     </span>
   </div>
-  <div class="progress-track">
-    <div class="progress-fill" id="expFill" data-pct="{{ level_info.progress }}" style="width:0%"></div>
-  </div>
-</div>
+  <p class="date-banner">── {{ date_header }} 的討伐名單 ──</p>
 
-{# ── NORMAL / BORDER ── #}
-{% if state in ('normal', 'border') %}
-
-  {% if state == 'border' %}
-  <p class="state-banner">─ 此乃邊境補給站，懸賞稀少 ─</p>
-  {% endif %}
-
-  {% for b in bounties %}
-  {% set shop = b.shop %}
-  {% set hunted = shop.id in all_hunted_ids %}
-  <div class="quest-card">
-
-    <div class="card-top">
-      <span class="category-tag">{{ b.quest_category }}</span>
-      <div class="grade-badge grade-{{ b.grade }}">{{ b.grade }}</div>
-    </div>
-
-    <div class="card-title-row">
-      <p class="quest-title">{{ b.grade }}級委託：{{ shop.name }}</p>
-      <p class="shop-location">
-        📍 {{ shop.district or '未知地區' }}
-        {% if shop.opening_unknown %}&nbsp;<span class="unk-pill">⚠ 出沒時間不明</span>{% endif %}
-      </p>
-    </div>
-
-    <hr class="card-divider">
-
-    <div class="card-detail">
-      {% if shop.rating %}
-      <div class="detail-row">
-        <span class="label">冒險者評價</span>
-        <span class="val star-rating">
-          {% set r = shop.rating | float %}
-          {% for i in range(5) %}{% if i < (r | round(0, 'floor') | int) %}★{% else %}☆{% endif %}{% endfor %}
-          {{ "%.1f"|format(r) }}
-        </span>
-      </div>
-      {% endif %}
-      {% if shop.address %}
-      <div class="detail-row">
-        <span class="label">座標</span>
-        <span class="val">{{ shop.address }}</span>
-      </div>
-      {% endif %}
-    </div>
-
-    <div class="card-footer">
-      <span class="reward-text">
-        討伐賞金：EXP +{{ b.display_exp }}
-        {% if b.is_hidden_gem %}<span class="gem-pill">★ 隱藏名店 ×2</span>{% endif %}
+  <!-- 等級條 -->
+  <div class="level-bar">
+    <div class="level-row">
+      <span class="level-lv">Lv.{{ level_info.level }}　<span class="level-name">{{ level_info.name }}</span></span>
+      <span class="level-exp">
+        {% if level_info.next_exp %}EXP {{ level_info.total_exp }} / {{ level_info.next_exp }}{% else %}MAX{% endif %}
       </span>
-      <a href="/bounty/{{ shop.id }}?grade={{ b.grade }}&origin={{ origin_key }}"
-         class="accept-btn">接令 →</a>
     </div>
+    <div class="progress-track">
+      <div class="progress-fill" data-pct="{{ level_info.progress }}"></div>
+    </div>
+  </div>
 
-    {% if hunted %}
-    <div class="hunted-overlay"><span class="hunted-stamp">討伐完了</span></div>
+  {# ── NORMAL / BORDER ── #}
+  {% if state in ('normal', 'border') %}
+
+    {% if state == 'border' %}
+    <div class="notice">此乃邊境補給站，懸賞稀少，獵人自重。</div>
     {% endif %}
 
-  </div>
-  {% endfor %}
+    {% for b in bounties %}
+    {% set shop = b.shop %}
+    {% set hunted = shop.id in all_hunted_ids %}
+    <article class="bounty">
+      <span class="nail l"></span><span class="nail r"></span>
+      <span class="seal {{ b.grade }}">{{ b.grade }}</span>
 
-  {% if sleeping_count > 0 %}
-  <p style="text-align:center;color:var(--parchment);opacity:.28;font-size:.72rem;padding:.4rem 1rem 1rem;">
-    另有 {{ sleeping_count }} 間店家尚在沉睡
-  </p>
+      <span class="b-type">{{ b.quest_category }}</span>
+      <h2 class="b-name">{{ shop.name }}</h2>
+      <div class="b-loc">
+        📍 {{ shop.district or '未知地區' }}
+        {% if shop.opening_unknown %}<span class="tag-unknown">⚠ 出沒時間不明</span>{% endif %}
+      </div>
+
+      <div class="b-divider"></div>
+
+      <div class="b-detail">
+        {% if shop.rating %}
+        冒險者評價：<span class="star">
+          {% set r = shop.rating | float %}
+          {% for i in range(5) %}{% if i < (r | round(0, 'floor') | int) %}★{% else %}☆{% endif %}{% endfor %}
+          {{ "%.1f"|format(r) }}</span>{% if shop.rating_count %}（{{ shop.rating_count }} 則）{% endif %}<br>
+        {% endif %}
+        {% if shop.address %}座標：{{ shop.address }}{% endif %}
+      </div>
+
+      <div class="b-foot">
+        <div class="b-reward">
+          <div class="lbl">REWARD</div>
+          <div class="val">
+            賞金 {{ b.display_exp }} EXP
+            {% if b.is_hidden_gem %}<span class="gem-pill">隱藏名店 ×2</span>{% endif %}
+          </div>
+        </div>
+        <a href="/bounty/{{ shop.id }}?grade={{ b.grade }}&origin={{ origin_key }}" class="accept-btn">接令 →</a>
+      </div>
+
+      {% if hunted %}
+      <div class="hunted-overlay"><span class="hunted-stamp">討伐完了</span></div>
+      {% endif %}
+    </article>
+    {% endfor %}
+
+    {% if sleeping_count and sleeping_count > 0 %}
+    <p class="sleeping-note">另有 {{ sleeping_count }} 間店家尚在沉睡</p>
+    {% endif %}
+
+  {# ── SLEEPING ── #}
+  {% elif state == 'sleeping' %}
+  <div class="state-full">
+    <div class="state-icon">🌙</div>
+    <p class="state-title">眾店皆眠</p>
+    <p class="state-body">此時此地，眾店皆眠。<br>稍後再訪，或移步他處。</p>
+  </div>
+
+  {# ── DESOLATE ── #}
+  {% else %}
+  <div class="state-full">
+    <p class="state-title">此地一片荒涼……</p>
+    <p class="state-body">方圓之內，無人張貼懸賞。<br>換個地方再試試吧。</p>
+    <div style="overflow:hidden;height:4rem;margin:1.5rem 0;"><span class="tumbleweed">🌾</span></div>
+  </div>
   {% endif %}
 
-{# ── SLEEPING ── #}
-{% elif state == 'sleeping' %}
-<div class="state-full">
-  <div class="state-icon">🌙</div>
-  <p class="state-title">眾店皆眠</p>
-  <p class="state-body">此時此地，眾店皆眠。<br>稍後再訪，或移步他處。</p>
+  <a href="/" class="back-link">← 回酒館</a>
 </div>
-
-{# ── DESOLATE ── #}
-{% else %}
-<div class="state-full">
-  <p class="state-title">此地一片荒涼……</p>
-  <p class="state-body">方圓之內，無人張貼懸賞。<br>換個地方再試試吧。</p>
-  <div style="overflow:hidden;height:4rem;margin:1.5rem 0;">
-    <span class="tumbleweed">🌾</span>
-  </div>
-</div>
-{% endif %}
-
-<a href="/" class="back-link">← 回酒館</a>
-
-</div>{# /phone-wrap #}
 
 <script>
 window.addEventListener('load', () => {
-  const fill = document.getElementById('expFill');
-  if(fill) setTimeout(() => fill.style.width = fill.dataset.pct + '%', 250);
+  setTimeout(() => {
+    document.querySelectorAll('.progress-fill').forEach(el => { el.style.width = el.dataset.pct + '%'; });
+  }, 250);
+  // 火漆章蓋章微動效
+  document.querySelectorAll('.seal').forEach((s, i) => {
+    s.style.transform = 'rotate(-10deg) scale(0)';
+    setTimeout(() => {
+      s.style.transition = 'transform .35s cubic-bezier(.34,1.56,.64,1)';
+      s.style.transform = 'rotate(-10deg) scale(1)';
+    }, 200 + i * 160);
+  });
 });
 </script>
 {% endblock %}
