@@ -1,45 +1,298 @@
 {% extends 'base.html' %}
 {% block title %}酒館 — 美食獵人執照{% endblock %}
+{% block head %}
+<style>
+:root{
+  --night:#1a1410; --wood-dark:#241a11; --wood:#3a2817;
+  --parchment:#f0e2c0; --parchment-dark:#e3d0a4;
+  --ink:#3a2c18; --ink-soft:#6b5638;
+  --seal:#b5402e; --gold:#e0b04a; --gold-deep:#a87a1e;
+  --ember:#ff8a3d;
+}
+body{ background:var(--night); }
+
+.phone-wrap{
+  max-width:430px; margin:0 auto; min-height:100dvh; position:relative;
+  background:
+    radial-gradient(120% 60% at 50% -8%, rgba(255,180,90,.16), transparent 60%),
+    radial-gradient(90% 50% at 50% 108%, rgba(0,0,0,.6), transparent 55%),
+    linear-gradient(180deg,#241a11 0%,#1d1510 45%,#160f0a 100%);
+  overflow:hidden;
+}
+
+/* 背牆 */
+.backwall{ position:absolute; inset:0; pointer-events:none; z-index:0; }
+.shelf{ position:absolute; left:0; right:0; height:3px;
+  background:linear-gradient(180deg,#2c1f13,#0e0a06);
+  box-shadow:0 6px 14px rgba(0,0,0,.5); }
+.shelf.s1{ top:78px; } .shelf.s2{ top:150px; }
+.bottle{ position:absolute; bottom:0; width:13px; border-radius:3px 3px 1px 1px; opacity:.55; }
+.lamp-glow{
+  position:absolute; top:24px; left:50%; transform:translateX(-50%);
+  width:240px; height:240px; border-radius:50%;
+  background:radial-gradient(circle,rgba(255,180,90,.22),transparent 70%);
+  filter:blur(6px); animation:flick 4s ease-in-out infinite;
+}
+@keyframes flick{0%,100%{opacity:.85}45%{opacity:1}70%{opacity:.78}}
+
+.wrap{ position:relative; z-index:2; padding:20px 18px 50px; }
+
+/* 招牌 */
+.crest{ text-align:center; margin-bottom:18px; }
+.crest .eyebrow{ font-family:'DotGothic16'; font-size:11px; letter-spacing:.45em; color:var(--gold-deep); text-indent:.45em; }
+.crest h1{ font-family:'DotGothic16'; font-size:26px; letter-spacing:.06em; color:var(--gold);
+  text-shadow:0 2px 0 #160f08, 0 0 18px rgba(255,180,90,.25); margin-top:4px; }
+.crest .rule{ display:flex; align-items:center; gap:10px; justify-content:center; margin-top:8px; }
+.crest .rule::before,.crest .rule::after{ content:""; height:1px; width:46px; }
+.crest .rule::before{ background:linear-gradient(90deg,transparent,var(--gold-deep)); }
+.crest .rule::after { background:linear-gradient(90deg,var(--gold-deep),transparent); }
+.crest .rule span{ font-size:11px; color:#b08a52; letter-spacing:.2em; }
+
+/* 老闆娘 */
+.keeper{ display:flex; gap:12px; align-items:flex-start; margin:18px 2px 22px; }
+.keeper .avatar{
+  flex:0 0 56px; height:56px; border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 38%,#ffd9a0 0 30%,transparent 31%),
+    radial-gradient(circle at 50% 80%,#b5402e 0 48%,transparent 49%),
+    linear-gradient(180deg,#5a3f24,#3a2817);
+  border:2px solid var(--gold-deep);
+  box-shadow:0 0 0 3px rgba(0,0,0,.3), 0 0 16px rgba(255,180,90,.2);
+  position:relative;
+}
+.keeper .avatar::after{ content:""; position:absolute; inset:0; border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,rgba(255,255,255,.25),transparent 45%); }
+.bubble{
+  position:relative; flex:1;
+  background:linear-gradient(180deg,var(--parchment),var(--parchment-dark));
+  color:var(--ink); border-radius:4px 14px 14px 14px;
+  padding:12px 14px; box-shadow:0 6px 16px rgba(0,0,0,.4);
+}
+.bubble::before{ content:""; position:absolute; left:-7px; top:14px;
+  border:7px solid transparent; border-right-color:var(--parchment); border-left:0; }
+.bubble .who{ font-family:'DotGothic16'; font-size:11px; color:var(--seal); letter-spacing:.1em; margin-bottom:3px; }
+.bubble .line{ font-size:14.5px; line-height:1.65; }
+
+/* 獵人執照 */
+.license{
+  position:relative; margin:0 2px 24px; border-radius:10px;
+  background:
+    repeating-linear-gradient(135deg,rgba(255,255,255,.025) 0 2px,transparent 2px 8px),
+    linear-gradient(155deg,#2e4756 0%,#28323f 55%,#1f2731 100%);
+  border:1px solid rgba(224,176,74,.4);
+  box-shadow:0 10px 26px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08);
+  padding:16px 18px; overflow:hidden;
+}
+.license::after{ content:"⚔"; position:absolute; right:-10px; bottom:-22px;
+  font-size:120px; color:rgba(224,176,74,.07); transform:rotate(-12deg); }
+.lic-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:12px; }
+.lic-label{ font-family:'DotGothic16'; font-size:10px; letter-spacing:.3em; color:#9fb4c4; }
+.lic-no   { font-family:'DotGothic16'; font-size:11px; color:var(--gold); letter-spacing:.05em; }
+.lic-name { font-family:'DotGothic16'; font-size:22px; color:#fff; letter-spacing:.04em; }
+.lic-rank { display:inline-block; margin-top:2px; font-size:13px; color:var(--gold); font-weight:700; }
+.lic-rank .lv{ font-family:'DotGothic16'; }
+.exp-row  { margin-top:14px; }
+.exp-meta { display:flex; justify-content:space-between; font-size:11px; color:#a9bccb; margin-bottom:5px; font-family:'DotGothic16'; }
+.exp-track{ height:9px; border-radius:5px; background:rgba(0,0,0,.4); overflow:hidden; border:1px solid rgba(0,0,0,.5); }
+.exp-fill {
+  height:100%; border-radius:5px;
+  background:linear-gradient(90deg,var(--gold-deep),var(--gold) 70%,#ffe6a8);
+  box-shadow:0 0 10px rgba(224,176,74,.5);
+  width:0%; transition:width .8s ease;
+}
+.titles   { display:flex; gap:6px; flex-wrap:wrap; margin-top:13px; }
+.badge    { font-size:11px; padding:3px 9px; border-radius:20px;
+  background:rgba(224,176,74,.12); border:1px solid rgba(224,176,74,.35); color:#f0d79a; letter-spacing:.04em; }
+
+/* 搜索此地 */
+.hunt-btn{
+  display:block; width:100%; margin:0 2px 22px; cursor:pointer;
+  font-family:'DotGothic16'; font-size:19px; letter-spacing:.12em; color:#1a1008;
+  border:none; border-radius:12px; padding:18px;
+  background:linear-gradient(180deg,#ffd071,#e0a942 60%,#c98e2c);
+  box-shadow:0 6px 0 #8a5e18, 0 12px 24px rgba(224,176,74,.3);
+  transition:transform .06s, box-shadow .06s;
+  position:relative; overflow:hidden; text-decoration:none; text-align:center;
+}
+.hunt-btn .sub{ display:block; font-family:'Noto Sans TC'; font-size:11px; letter-spacing:.2em;
+  color:#5a3a10; margin-top:3px; font-weight:500; }
+.hunt-btn:active{ transform:translateY(4px); box-shadow:0 2px 0 #8a5e18, 0 6px 14px rgba(224,176,74,.3); }
+.hunt-btn .shine{
+  position:absolute; top:0; left:-60%; width:40%; height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+  animation:sweep 3.5s ease-in-out infinite;
+}
+@keyframes sweep{0%,100%{left:-60%}50%{left:120%}}
+
+/* 本日流言 */
+.rumor{
+  margin:0 2px 22px; border-radius:8px; position:relative;
+  background:linear-gradient(180deg,rgba(58,40,23,.7),rgba(36,26,17,.7));
+  border:1px solid rgba(181,64,46,.4); padding:14px 16px 14px 44px;
+}
+.rumor::before{ content:"🍺"; position:absolute; left:14px; top:13px; font-size:18px; filter:saturate(.8); }
+.rumor .tag  { font-family:'DotGothic16'; font-size:10px; letter-spacing:.25em; color:var(--ember); margin-bottom:4px; }
+.rumor .text { font-size:13.5px; line-height:1.6; color:#e8d4ac; }
+
+/* 快速入口 */
+.quick{ display:flex; gap:12px; margin:0 2px; }
+.qcard{
+  flex:1; cursor:pointer; text-align:center; border-radius:10px; padding:16px 8px;
+  background:linear-gradient(180deg,rgba(58,40,23,.6),rgba(30,22,15,.6));
+  border:1px solid rgba(224,176,74,.2); text-decoration:none;
+  transition:transform .1s, border-color .1s; display:block;
+}
+.qcard:active{ transform:scale(.96); border-color:rgba(224,176,74,.5); }
+.qcard .ic{ font-size:24px; display:block; margin-bottom:6px; }
+.qcard .nm{ font-family:'DotGothic16'; font-size:13px; color:var(--parchment); letter-spacing:.05em; }
+.qcard .dt{ font-size:10px; color:#9a7d52; margin-top:3px; }
+
+.footnote{ text-align:center; margin-top:26px; font-size:10px; color:#6b563a; letter-spacing:.08em; line-height:1.6; }
+
+/* 遠征入口 */
+.expedition-btn{
+  display:block; text-align:center; margin:0 2px 14px;
+  color:var(--gold); border:1.5px solid rgba(224,176,74,.4);
+  border-radius:10px; padding:14px;
+  background:rgba(58,40,23,.4); text-decoration:none;
+  font-family:'DotGothic16'; font-size:14px; letter-spacing:.08em;
+}
+.expedition-btn .sub{ display:block; font-family:'Noto Sans TC'; font-size:10px; color:#9a7d52; margin-top:3px; }
+</style>
+{% endblock %}
 {% block content %}
-<div style="padding:1.5rem 1.25rem;">
-
-  <!-- 酒館 header -->
-  <div style="margin-bottom:1.5rem;">
-    <p style="font-family:'DotGothic16';font-size:0.75rem;color:var(--gold);letter-spacing:0.15em;margin-bottom:0.25rem;">HUNTER'S TAVERN</p>
-    <h1 style="font-family:'DotGothic16';font-size:1.4rem;color:var(--parchment);">酒館</h1>
-    <p style="font-size:0.85rem;color:var(--parchment);opacity:0.65;margin-top:0.3rem;">
-      歡迎回來，{{ display_name }} 獵人
-    </p>
+<div class="phone-wrap">
+  <div class="backwall" id="backwall">
+    <div class="lamp-glow"></div>
+    <div class="shelf s1"></div>
+    <div class="shelf s2"></div>
   </div>
 
-  <!-- 老闆娘台詞佔位 -->
-  <div style="background:rgba(243,230,196,0.08);border:1px solid rgba(217,164,65,0.3);border-radius:6px;padding:1rem;margin-bottom:2rem;font-size:0.875rem;line-height:1.6;color:var(--parchment);opacity:0.8;">
-    「今天有什麼好吃的嗎？去探探看吧。」
-  </div>
+  <div class="wrap">
+    <!-- 招牌 -->
+    <div class="crest">
+      <div class="eyebrow">FOOD HUNTER GUILD</div>
+      <h1>美食獵人協會</h1>
+      <div class="rule"><span>酒 館</span></div>
+    </div>
 
-  <!-- 主要入口 -->
-  <div style="display:flex;flex-direction:column;gap:0.875rem;">
-    <a href="/board?mode=explore"
-       style="display:block;background:var(--red);color:var(--parchment);padding:1.1rem 1rem;border-radius:6px;text-decoration:none;font-weight:700;font-size:1rem;text-align:center;">
-      🧭 搜索此地
-      <span style="display:block;font-size:0.75rem;font-weight:400;opacity:0.8;margin-top:0.2rem;">開拓模式・GPS 定位</span>
+    <!-- 老闆娘 -->
+    <div class="keeper">
+      <div class="avatar"></div>
+      <div class="bubble">
+        <div class="who">酒館老闆娘</div>
+        <div class="line" id="keeperLine">哎呀，獵人你來啦。今晚的胃，準備好接懸賞了嗎？</div>
+      </div>
+    </div>
+
+    <!-- 獵人執照 -->
+    <div class="license">
+      <div class="lic-top">
+        <span class="lic-label">獵 人 執 照</span>
+        <span class="lic-no">{{ license_no }}</span>
+      </div>
+      <div class="lic-name">{{ display_name }}</div>
+      <div class="lic-rank">
+        <span class="lv">Lv.{{ level_info.level }}</span>　{{ level_info.name }}
+      </div>
+      <div class="exp-row">
+        <div class="exp-meta">
+          <span>EXP</span>
+          <span>
+            {% if level_info.next_exp %}{{ level_info.total_exp }} / {{ level_info.next_exp }}
+            {% else %}MAX{% endif %}
+          </span>
+        </div>
+        <div class="exp-track">
+          <div class="exp-fill" id="expFill" data-pct="{{ level_info.progress }}"></div>
+        </div>
+      </div>
+      {% if titles %}
+      <div class="titles">
+        {% for t in titles %}<span class="badge">{{ t }}</span>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- 搜索此地 -->
+    <a href="/board?mode=explore" class="hunt-btn" id="huntBtn">
+      <span class="shine"></span>
+      ⚔ 搜索此地
+      <span class="sub">SEARCH FOR BOUNTIES NEARBY</span>
     </a>
 
-    <a href="/expedition"
-       style="display:block;background:transparent;color:var(--gold);padding:1rem;border:2px solid var(--gold);border-radius:6px;text-decoration:none;font-size:0.95rem;text-align:center;">
+    <!-- 遠征規劃 -->
+    <a href="/expedition" class="expedition-btn">
       🗺 遠征規劃
-      <span style="display:block;font-size:0.75rem;opacity:0.7;margin-top:0.2rem;">選行政區・規劃週末遠征</span>
+      <span class="sub">選行政區・規劃週末遠征</span>
     </a>
 
-    <a href="/dex"
-       style="display:block;color:var(--parchment);opacity:0.6;padding:0.75rem;text-decoration:none;font-size:0.875rem;text-align:center;">
-      📖 美食圖鑑
-    </a>
+    <!-- 本日流言 -->
+    <div class="rumor">
+      <div class="tag">本 日 酒 館 流 言</div>
+      <div class="text">
+        聽說附近深巷裡，有間沒掛招牌的小店，評價高得嚇人，知道的人卻寥寥無幾……
+      </div>
+    </div>
+
+    <!-- 快速入口 -->
+    <div class="quick">
+      <a href="/dex" class="qcard">
+        <span class="ic">📖</span>
+        <span class="nm">美食圖鑑</span>
+        <span class="dt">已討伐 {{ hunt_count }} 間</span>
+      </a>
+      <a href="/logout" class="qcard">
+        <span class="ic">🚪</span>
+        <span class="nm">離開酒館</span>
+        <span class="dt">登出帳號</span>
+      </a>
+    </div>
+
+    <div class="footnote">— 美食獵人執照 MVP —</div>
   </div>
-
-  <a href="/logout"
-     style="display:block;margin-top:3rem;color:var(--parchment);opacity:0.3;font-size:0.75rem;text-align:center;text-decoration:none;">
-    登出
-  </a>
 </div>
+
+<script>
+// 老闆娘台詞依時段
+(function(){
+  const h = new Date().getHours();
+  let line;
+  if(h < 11)      line = "這麼早就出門狩獵？早市的鮮味可是稀有掉落物哪。";
+  else if(h < 14) line = "正午了，獵人。午間的懸賞最是熱鬧，挑一張順手的吧。";
+  else if(h < 17) line = "下午茶時分……多數店家正在沉睡，但總有不眠的據點等著你。";
+  else if(h < 21) line = "夜幕低垂，正是大型討伐的好時機。今晚想征服哪一區？";
+  else            line = "夜深了，還在狩獵？這份執著，配得上傳說級的稱號。";
+  document.getElementById('keeperLine').textContent = line;
+})();
+
+// EXP 條入場動畫
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const fill = document.getElementById('expFill');
+    fill.style.width = fill.dataset.pct + '%';
+  }, 300);
+});
+
+// 背牆酒瓶
+(function(){
+  const wall = document.getElementById('backwall');
+  const cols = ['#caa15a','#9c6b3f','#7fae8a','#b5685a','#d4b06a','#6f8aa8'];
+  function row(top, count){
+    for(let i = 0; i < count; i++){
+      const b = document.createElement('div');
+      b.className = 'bottle';
+      const h = 22 + Math.random() * 26;
+      b.style.height = h + 'px';
+      b.style.left = (6 + i * (100/count) + Math.random() * 3) + '%';
+      b.style.bottom = top + 'px';
+      b.style.background = `linear-gradient(180deg, ${cols[i%cols.length]}88, rgba(40,28,16,.85))`;
+      wall.appendChild(b);
+    }
+  }
+  const ph = document.querySelector('.phone-wrap').getBoundingClientRect();
+  row(ph.height - 78 - 26, 9);
+  row(ph.height - 150 - 26, 11);
+})();
+</script>
 {% endblock %}

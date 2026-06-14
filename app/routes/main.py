@@ -26,7 +26,36 @@ def login_required(f):
 @bp.route('/')
 @login_required
 def tavern():
-    return render_template('tavern.html', display_name=session['display_name'])
+    import hashlib
+    user_id = session['user_id']
+    sb = get_supabase()
+
+    hunts = sb.table('hunts').select('exp_gained, district').eq('user_id', user_id).execute().data
+    total_exp = sum(h['exp_gained'] for h in hunts)
+    hunt_count = len(hunts)
+    level_info = get_level_info(total_exp)
+
+    district_counts: dict[str, int] = {}
+    for h in hunts:
+        if h['district']:
+            district_counts[h['district']] = district_counts.get(h['district'], 0) + 1
+
+    titles = []
+    for d, c in sorted(district_counts.items(), key=lambda x: -x[1]):
+        if c >= 25:
+            titles.append(f'{d}制霸者')
+        elif c >= 10:
+            titles.append(f'{d}地頭蛇')
+
+    license_no = f"TW-2026-{hashlib.md5(user_id.encode()).hexdigest()[:6].upper()}"
+
+    return render_template('tavern.html',
+        display_name=session['display_name'],
+        level_info=level_info,
+        hunt_count=hunt_count,
+        titles=titles,
+        license_no=license_no,
+    )
 
 
 @bp.route('/board')
