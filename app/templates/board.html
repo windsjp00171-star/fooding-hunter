@@ -2,144 +2,311 @@
 {% block title %}懸賞板 — 美食獵人執照{% endblock %}
 {% block head %}
 <style>
-  .board-header { padding: 1.25rem 1.25rem 0; }
-  .board-header h1 { font-family: 'DotGothic16'; font-size: 1.3rem; color: var(--parchment); }
-  .board-header p  { font-size: 0.8rem; color: var(--parchment); opacity: 0.5; margin-top: 0.2rem; }
+/* ── 全頁背景 ── */
+body { background: #1e1408; }
 
-  /* grade badge */
-  .grade { display:inline-block; width:2rem; height:2rem; border-radius:50%;
-           font-family:'DotGothic16'; font-size:1rem; line-height:2rem;
-           text-align:center; font-weight:700; flex-shrink:0; }
-  .grade-S { background:var(--gold); color:var(--bg); }
-  .grade-A { background:#a8c0d6; color:var(--bg); }
-  .grade-B { background:#8db88a; color:var(--bg); }
-  .grade-C { background:var(--red); color:var(--parchment); }
+/* ── 木板標題 ── */
+.board-sign {
+  margin: 1rem 1rem .75rem;
+  background: linear-gradient(180deg, #3d2810 0%, #2a1d0e 60%, #1e1408 100%);
+  border: 2px solid #6a4a20;
+  border-radius: 6px;
+  padding: 1rem 1.5rem .9rem;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06);
+}
+/* 螺絲釘 */
+.board-sign::before, .board-sign::after {
+  content: '●';
+  position: absolute; top: .55rem;
+  font-size: .6rem; color: #a08050; opacity: .8;
+}
+.board-sign::before { left: .75rem; }
+.board-sign::after  { right: .75rem; }
+.board-sign h1 {
+  font-family:'DotGothic16'; font-size:1.5rem; color:var(--gold);
+  text-shadow: 0 1px 8px rgba(217,164,65,.5);
+  margin-bottom: .2rem;
+}
+.board-sign p { font-size:.75rem; color:var(--parchment); opacity:.5; }
 
-  /* bounty card */
-  .card {
-    margin: 0 1.25rem 1rem;
-    background: var(--parchment);
-    color: var(--bg);
-    border-radius: 6px;
-    padding: 1rem;
-    position: relative;
-    overflow: hidden;
-  }
-  .card-header { display:flex; align-items:center; gap:0.75rem; margin-bottom:0.6rem; }
-  .card-title  { font-weight:700; font-size:1rem; line-height:1.3; flex:1; }
-  .card-sub    { font-size:0.75rem; opacity:0.6; margin-bottom:0.6rem; }
-  .card-footer { display:flex; align-items:center; justify-content:space-between; }
-  .exp-tag     { font-family:'DotGothic16'; font-size:0.9rem; color:var(--red); }
-  .gem-tag     { font-size:0.7rem; background:var(--gold); color:var(--bg);
-                 padding:0.1rem 0.4rem; border-radius:3px; font-weight:700; }
-  .unk-tag     { font-size:0.7rem; background:#888; color:#fff;
-                 padding:0.1rem 0.4rem; border-radius:3px; }
-  .hunted-overlay {
-    position:absolute; inset:0;
-    background:rgba(42,29,18,0.72);
-    display:flex; align-items:center; justify-content:center;
-    border-radius:6px;
-  }
-  .hunted-stamp {
-    border:3px solid var(--gold); color:var(--gold);
-    font-family:'DotGothic16'; font-size:1.1rem;
-    padding:0.3rem 0.8rem; border-radius:4px;
-    transform:rotate(-8deg);
-  }
-  .accept-btn {
-    background:var(--bg); color:var(--parchment);
-    border:none; padding:0.5rem 1rem; border-radius:4px;
-    font-size:0.85rem; font-weight:700; cursor:pointer; text-decoration:none;
-    display:inline-block;
-  }
+/* ── 日期橫幅 ── */
+.date-banner {
+  text-align:center; font-size:.75rem;
+  color:var(--parchment); opacity:.55;
+  padding:.1rem 1rem .6rem;
+  letter-spacing:.08em;
+}
 
-  /* tumbleweed */
-  @keyframes roll { from { transform:translateX(-60px) rotate(0deg); } to { transform:translateX(110vw) rotate(720deg); } }
-  .tumbleweed { display:inline-block; font-size:2.5rem; animation:roll 6s linear infinite; }
+/* ── 等級條 ── */
+.level-bar {
+  margin: 0 1rem .9rem;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(217,164,65,.25);
+  border-radius: 4px;
+  padding: .5rem .75rem;
+}
+.level-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:.35rem; }
+.level-lv  { font-family:'DotGothic16'; font-size:.75rem; color:var(--gold); }
+.level-name{ font-size:.75rem; color:var(--parchment); opacity:.7; }
+.level-exp { font-size:.7rem; color:var(--parchment); opacity:.45; }
+.progress-track {
+  height: 6px; background: rgba(255,255,255,.1); border-radius: 3px; overflow:hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #b5402e, var(--gold));
+  border-radius: 3px;
+  transition: width .6s ease;
+}
+
+/* ── 懸賞卡片 ── */
+.quest-card {
+  margin: 0 1rem .9rem;
+  background: linear-gradient(160deg, #f5e8c8 0%, #ecdaaa 100%);
+  border: 1px solid #c8a060;
+  border-radius: 5px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.4);
+}
+/* 紙張橫線質感 */
+.quest-card::after {
+  content:''; position:absolute; inset:0; pointer-events:none;
+  background: repeating-linear-gradient(180deg,
+    transparent 0px, transparent 22px,
+    rgba(160,120,60,.07) 22px, rgba(160,120,60,.07) 23px);
+}
+
+/* 卡片頂列：分類標籤 + 等級章 */
+.card-top {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:.6rem .75rem .35rem;
+}
+.category-tag {
+  font-size:.68rem; font-weight:700; color:#6a3a10;
+  background: rgba(181,64,46,.15);
+  border: 1px solid rgba(181,64,46,.3);
+  padding:.15rem .55rem; border-radius:3px;
+  letter-spacing:.05em;
+}
+.grade-badge {
+  width:2.4rem; height:2.4rem; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'DotGothic16'; font-size:1.1rem; font-weight:700;
+  box-shadow:0 2px 8px rgba(0,0,0,.4), inset 0 -2px 3px rgba(0,0,0,.2);
+  flex-shrink:0;
+}
+.grade-S { background:radial-gradient(circle at 35% 35%, #f5d060, #c8900a); color:#3a2000; }
+.grade-A { background:radial-gradient(circle at 35% 35%, #c8ddf5, #6080b0); color:#1a2840; }
+.grade-B { background:radial-gradient(circle at 35% 35%, #a8d090, #4a8040); color:#152010; }
+.grade-C { background:radial-gradient(circle at 35% 35%, #e87060, #9a1808); color:#fff; }
+
+/* 卡片標題 */
+.card-title-row { padding:.1rem .75rem .5rem; }
+.quest-title {
+  font-size:1.05rem; font-weight:700; color:#1e1008; line-height:1.35;
+}
+.shop-location {
+  display:flex; align-items:center; gap:.3rem;
+  font-size:.75rem; color:#6a4020; margin-top:.2rem; opacity:.85;
+}
+
+/* 分隔線 */
+.card-divider {
+  margin:0 .75rem;
+  border:none; border-top:1px dashed rgba(160,100,30,.4);
+}
+
+/* 詳細資訊 */
+.card-detail { padding:.45rem .75rem; }
+.detail-row  { display:flex; align-items:center; gap:.4rem; font-size:.75rem; color:#5a3818; margin-bottom:.2rem; }
+.detail-row .label { opacity:.65; flex-shrink:0; }
+.detail-row .val   { font-weight:600; }
+.star-rating { color:#c8800a; }
+
+/* 報酬 + 接令列 */
+.card-footer {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:.5rem .75rem .65rem;
+  border-top: 1px solid rgba(160,100,30,.25);
+  margin-top:.1rem;
+}
+.reward-text {
+  font-family:'DotGothic16'; font-size:.85rem; color:#9a2010;
+}
+.gem-pill {
+  display:inline-block;
+  font-size:.62rem; font-weight:700;
+  background:var(--gold); color:#2a1000;
+  padding:.05rem .35rem; border-radius:2px; margin-left:.3rem;
+  vertical-align:middle;
+}
+.unk-pill {
+  display:inline-block;
+  font-size:.62rem;
+  background:#888; color:#fff;
+  padding:.05rem .35rem; border-radius:2px;
+}
+.accept-btn {
+  display:inline-block;
+  background:var(--bg); color:var(--gold);
+  border:1.5px solid var(--gold);
+  padding:.4rem .9rem; border-radius:3px;
+  font-size:.8rem; font-weight:700; text-decoration:none;
+  letter-spacing:.04em; white-space:nowrap;
+}
+
+/* 已討伐蓋章 */
+.hunted-overlay {
+  position:absolute; inset:0; z-index:10;
+  background:rgba(30,20,8,.72);
+  display:flex; align-items:center; justify-content:center;
+}
+.hunted-stamp {
+  border:3px solid var(--gold); color:var(--gold);
+  font-family:'DotGothic16'; font-size:1.3rem;
+  padding:.4rem 1rem; border-radius:4px;
+  transform:rotate(-12deg);
+  text-shadow:0 1px 4px rgba(0,0,0,.8);
+}
+
+/* 邊境 / 眠 / 荒涼 特殊狀態 */
+.state-banner {
+  text-align:center; font-family:'DotGothic16';
+  color:var(--gold); font-size:.82rem;
+  padding:.5rem 1.5rem .7rem;
+  letter-spacing:.08em; opacity:.9;
+}
+.state-full {
+  text-align:center; padding:3.5rem 2rem;
+}
+.state-icon  { font-size:3rem; margin-bottom:.9rem; }
+.state-title { font-family:'DotGothic16'; color:var(--gold); font-size:1.1rem; margin-bottom:.7rem; }
+.state-body  { color:var(--parchment); opacity:.55; font-size:.85rem; line-height:1.8; }
+
+/* 風滾草 */
+@keyframes roll {
+  from { transform:translateX(-80px) rotate(0deg); }
+  to   { transform:translateX(420px) rotate(720deg); }
+}
+.tumbleweed { display:inline-block; font-size:2.8rem; animation:roll 7s linear infinite; }
 </style>
 {% endblock %}
 {% block content %}
 
-<div class="board-header">
+<!-- 木板標題 -->
+<div class="board-sign">
   <h1>懸賞板</h1>
-  <p>
-    {% if mode == 'expedition' %}🗺 遠征・{{ district }}{% else %}🧭 開拓此地{% endif %}
-  </p>
+  <p>{% if mode == 'expedition' %}遠征・{{ district }} 公會{% else %}獵人公會・開拓任務{% endif %}</p>
 </div>
 
-{# ===== NORMAL / BORDER ===== #}
+<!-- 日期 -->
+<p class="date-banner">── {{ date_header }} 的討伐名單 ──</p>
+
+<!-- 等級條 -->
+<div class="level-bar">
+  <div class="level-row">
+    <span class="level-lv">Lv.{{ level_info.level }}&nbsp;&nbsp;<span class="level-name">{{ level_info.name }}</span></span>
+    <span class="level-exp">
+      {% if level_info.next_exp %}EXP {{ level_info.total_exp }} / {{ level_info.next_exp }}
+      {% else %}MAX{% endif %}
+    </span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" style="width:{{ level_info.progress }}%"></div>
+  </div>
+</div>
+
+{# ── NORMAL / BORDER ── #}
 {% if state in ('normal', 'border') %}
 
   {% if state == 'border' %}
-  <p style="text-align:center;color:var(--gold);font-size:0.8rem;padding:0.75rem 1.25rem;opacity:0.8;">
-    此乃邊境補給站，懸賞稀少，獵人自重。
-  </p>
+  <p class="state-banner">─ 此乃邊境補給站，懸賞稀少 ─</p>
   {% endif %}
 
-  <div style="margin-top:0.75rem;">
   {% for b in bounties %}
-    {% set shop = b.shop %}
-    {% set hunted = shop.id in all_hunted_ids %}
-    <div class="card">
-      <div class="card-header">
-        <span class="grade grade-{{ b.grade }}">{{ b.grade }}</span>
-        <span class="card-title">{{ shop.name }}</span>
-      </div>
-      <p class="card-sub">
-        {{ shop.district or '—' }}
-        {% if shop.get('opening_unknown') %}
-          <span class="unk-tag">⚠ 出沒時間不明</span>
-        {% endif %}
+  {% set shop = b.shop %}
+  {% set hunted = shop.id in all_hunted_ids %}
+  <div class="quest-card">
+
+    <div class="card-top">
+      <span class="category-tag">{{ b.quest_category }}</span>
+      <div class="grade-badge grade-{{ b.grade }}">{{ b.grade }}</div>
+    </div>
+
+    <div class="card-title-row">
+      <p class="quest-title">{{ b.grade }}級委託：{{ shop.name }}</p>
+      <p class="shop-location">
+        📍 {{ shop.district or '未知地區' }}
+        {% if shop.get('opening_unknown') %}&nbsp;<span class="unk-pill">⚠ 出沒時間不明</span>{% endif %}
       </p>
-      <div class="card-footer">
-        <span class="exp-tag">
-          賞金 {{ b.display_exp }} EXP
-          {% if b.is_hidden_gem %}<span class="gem-tag">隱藏名店 ×2</span>{% endif %}
+    </div>
+
+    <hr class="card-divider">
+
+    <div class="card-detail">
+      {% if shop.rating %}
+      <div class="detail-row">
+        <span class="label">冒險者評價</span>
+        <span class="val star-rating">
+          {% set r = shop.rating | float %}
+          {% for i in range(5) %}{% if i < (r | round(0, 'floor') | int) %}★{% else %}☆{% endif %}{% endfor %}
+          {{ "%.1f"|format(r) }}
         </span>
-        <a href="/bounty/{{ shop.id }}?grade={{ b.grade }}&origin={{ origin_key if origin_key else '' }}"
-           class="accept-btn">接令 →</a>
       </div>
-      {% if hunted %}
-      <div class="hunted-overlay">
-        <span class="hunted-stamp">已討伐</span>
+      {% endif %}
+      {% if shop.address %}
+      <div class="detail-row">
+        <span class="label">座標</span>
+        <span class="val">{{ shop.address }}</span>
       </div>
       {% endif %}
     </div>
-  {% endfor %}
+
+    <div class="card-footer">
+      <span class="reward-text">
+        討伐賞金：EXP +{{ b.display_exp }}
+        {% if b.is_hidden_gem %}<span class="gem-pill">★隱藏名店×2</span>{% endif %}
+      </span>
+      <a href="/bounty/{{ shop.id }}?grade={{ b.grade }}&origin={{ origin_key }}"
+         class="accept-btn">接令 →</a>
+    </div>
+
+    {% if hunted %}
+    <div class="hunted-overlay"><span class="hunted-stamp">已討伐</span></div>
+    {% endif %}
   </div>
+  {% endfor %}
 
   {% if sleeping_count > 0 %}
-  <p style="text-align:center;color:var(--parchment);opacity:0.4;font-size:0.75rem;padding:0 1.25rem 1rem;">
+  <p style="text-align:center;color:var(--parchment);opacity:.3;font-size:.72rem;padding:.4rem 1rem 1rem;">
     另有 {{ sleeping_count }} 間店家尚在沉睡
   </p>
   {% endif %}
 
-{# ===== SLEEPING ===== #}
+{# ── SLEEPING ── #}
 {% elif state == 'sleeping' %}
-<div style="text-align:center;padding:4rem 2rem;">
-  <div style="font-size:3rem;margin-bottom:1rem;">🌙</div>
-  <p style="font-family:'DotGothic16';color:var(--gold);font-size:1.1rem;margin-bottom:0.75rem;">眾店皆眠</p>
-  <p style="color:var(--parchment);opacity:0.6;font-size:0.85rem;line-height:1.7;">
-    此時此地，眾店皆眠。<br>稍後再訪，或移步他處。
-  </p>
+<div class="state-full">
+  <div class="state-icon">🌙</div>
+  <p class="state-title">眾店皆眠</p>
+  <p class="state-body">此時此地，眾店皆眠。<br>稍後再訪，或移步他處。</p>
 </div>
 
-{# ===== DESOLATE ===== #}
+{# ── DESOLATE ── #}
 {% else %}
-<div style="text-align:center;padding:4rem 1.5rem;overflow:hidden;">
-  <p style="font-family:'DotGothic16';color:var(--gold);font-size:1.1rem;margin-bottom:0.75rem;">此地一片荒涼……</p>
-  <p style="color:var(--parchment);opacity:0.5;font-size:0.85rem;margin-bottom:2.5rem;">
-    方圓之內，無人張貼懸賞。
-  </p>
-  <div style="overflow:hidden;height:3.5rem;margin-bottom:2rem;">
+<div class="state-full">
+  <p class="state-title">此地一片荒涼……</p>
+  <p class="state-body">方圓之內，無人張貼懸賞。<br>換個地方再試試吧。</p>
+  <div style="overflow:hidden;height:4rem;margin:1.5rem 0;">
     <span class="tumbleweed">🌾</span>
   </div>
-  <a href="/" style="color:var(--parchment);opacity:0.5;font-size:0.85rem;text-decoration:none;">← 回酒館</a>
 </div>
 {% endif %}
 
-<div style="text-align:center;padding:1rem 0 2rem;">
-  <a href="/" style="color:var(--parchment);opacity:0.3;font-size:0.75rem;text-decoration:none;">← 回酒館</a>
+<div style="text-align:center;padding:1rem 0 2.5rem;">
+  <a href="/" style="color:var(--parchment);opacity:.25;font-size:.75rem;text-decoration:none;">← 回酒館</a>
 </div>
 
 {% endblock %}

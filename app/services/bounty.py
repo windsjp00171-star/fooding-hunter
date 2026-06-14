@@ -8,6 +8,46 @@ TZ = ZoneInfo('Asia/Taipei')
 
 _GRADES = [('S', 4.6, 50), ('A', 4.2, 40), ('B', 3.8, 30), ('C', 0.0, 60)]
 
+_LEVELS = [
+    (0,    '見習獵人',    300),
+    (300,  '青銅獵人',    800),
+    (800,  '白銀獵人',   1600),
+    (1600, '黃金獵人',   3000),
+    (3000, '美食獵人',   5000),
+    (5000, '傳說級獵人', None),
+]
+
+_QUEST_CATEGORY = {
+    'S': '傳說委託',
+    'A': '高評委託',
+    'B': '一般委託',
+    'C': '高風險委託',
+}
+
+_CN_DAYS = ['一', '二', '三', '四', '五', '六', '日']
+
+
+def get_level_info(total_exp: int) -> dict:
+    lv, name, cur_min, next_exp = 1, '見習獵人', 0, 300
+    for i, (mn, nm, nx) in enumerate(_LEVELS):
+        if total_exp >= mn:
+            lv, name, cur_min, next_exp = i + 1, nm, mn, nx
+    if next_exp is None:
+        progress = 100
+    else:
+        progress = round((total_exp - cur_min) / (next_exp - cur_min) * 100)
+    return {
+        'level': lv, 'name': name,
+        'total_exp': total_exp,
+        'next_exp': next_exp,
+        'progress': min(progress, 100),
+    }
+
+
+def today_header() -> str:
+    now = datetime.now(TZ)
+    return f"{now.year} 年 {now.month} 月 {now.day} 日（{_CN_DAYS[now.weekday()]}）"
+
 
 def get_grade(rating):
     if rating is None:
@@ -109,5 +149,6 @@ def draw_bounties(shops, user_id, origin_key, exclude_ids, count=3):
             'base_reward': base_reward,
             'is_hidden_gem': gem,
             'display_exp': base_reward * (2 if gem else 1),
+            'quest_category': _QUEST_CATEGORY[grade],
         })
     return result

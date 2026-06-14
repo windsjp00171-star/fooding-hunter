@@ -6,7 +6,8 @@ from flask import Blueprint, redirect, render_template, request, session, url_fo
 
 from app.supabase_client import get_supabase
 from app.services.bounty import (
-    cell_ids_around, draw_bounties, haversine_km, is_open_now
+    cell_ids_around, draw_bounties, haversine_km, is_open_now,
+    get_level_info, today_header,
 )
 
 bp = Blueprint('main', __name__)
@@ -104,6 +105,11 @@ def board():
     else:
         state = 'normal'
 
+    # Level info
+    exp_rows = sb.table('hunts').select('exp_gained').eq('user_id', user_id).execute().data
+    total_exp = sum(h['exp_gained'] for h in exp_rows)
+    level_info = get_level_info(total_exp)
+
     return render_template('board.html',
         mode=mode,
         state=state,
@@ -113,6 +119,9 @@ def board():
         origin_key=origin_key,
         district=district,
         lat=lat, lng=lng,
+        level_info=level_info,
+        date_header=today_header(),
+        display_name=session['display_name'],
     )
 
 
