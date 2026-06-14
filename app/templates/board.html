@@ -2,202 +2,240 @@
 {% block title %}懸賞板 — 美食獵人執照{% endblock %}
 {% block head %}
 <style>
-/* ── 全頁背景 ── */
-body { background: #1e1408; }
+:root{
+  --night:#1a1410; --wood-dark:#241a11; --wood:#3a2817;
+  --parchment:#f0e2c0; --parchment-dark:#e3d0a4;
+  --ink:#3a2c18; --ink-soft:#6b5638;
+  --seal:#b5402e; --gold:#e0b04a; --gold-deep:#a87a1e;
+  --ember:#ff8a3d;
+}
+body{ background:var(--night); }
+
+.phone-wrap{
+  max-width:430px; margin:0 auto; min-height:100dvh;
+  background:
+    radial-gradient(120% 60% at 50% -8%, rgba(255,180,90,.12), transparent 60%),
+    linear-gradient(180deg,#241a11 0%,#1d1510 45%,#160f0a 100%);
+}
 
 /* ── 木板標題 ── */
-.board-sign {
-  margin: 1rem 1rem .75rem;
-  background: linear-gradient(180deg, #3d2810 0%, #2a1d0e 60%, #1e1408 100%);
-  border: 2px solid #6a4a20;
-  border-radius: 6px;
-  padding: 1rem 1.5rem .9rem;
-  text-align: center;
-  position: relative;
-  box-shadow: 0 4px 16px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.06);
+.board-sign{
+  margin:1rem 1rem .75rem;
+  background:
+    repeating-linear-gradient(90deg,transparent 0,transparent 18px,rgba(0,0,0,.05) 18px,rgba(0,0,0,.05) 19px),
+    linear-gradient(180deg,#3d2810 0%,#2a1d0e 60%,#1e1408 100%);
+  border:2px solid #6a4a20;
+  border-radius:6px;
+  padding:1rem 1.5rem .9rem;
+  text-align:center;
+  position:relative;
+  box-shadow:0 4px 16px rgba(0,0,0,.65), inset 0 1px 0 rgba(255,255,255,.06);
 }
-/* 螺絲釘 */
-.board-sign::before, .board-sign::after {
-  content: '●';
-  position: absolute; top: .55rem;
-  font-size: .6rem; color: #a08050; opacity: .8;
+/* 鐵釘（上兩角 via pseudo，下兩角 via span） */
+.board-sign::before,.board-sign::after{
+  content:''; position:absolute;
+  width:8px; height:8px; border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#c8a060,#6a4a20);
+  box-shadow:0 1px 3px rgba(0,0,0,.5);
+  top:.6rem;
 }
-.board-sign::before { left: .75rem; }
-.board-sign::after  { right: .75rem; }
-.board-sign h1 {
+.board-sign::before{ left:.65rem; }
+.board-sign::after { right:.65rem; }
+.bolt-b{
+  position:absolute; bottom:.6rem;
+  width:8px; height:8px; border-radius:50%;
+  background:radial-gradient(circle at 35% 35%,#c8a060,#6a4a20);
+  box-shadow:0 1px 3px rgba(0,0,0,.5);
+}
+.bolt-bl{ left:.65rem; } .bolt-br{ right:.65rem; }
+.board-sign h1{
   font-family:'DotGothic16'; font-size:1.5rem; color:var(--gold);
-  text-shadow: 0 1px 8px rgba(217,164,65,.5);
-  margin-bottom: .2rem;
+  text-shadow:0 1px 8px rgba(224,176,74,.4); margin-bottom:.2rem;
 }
-.board-sign p { font-size:.75rem; color:var(--parchment); opacity:.5; }
+.board-sign p{ font-size:.75rem; color:var(--parchment); opacity:.5; }
 
 /* ── 日期橫幅 ── */
-.date-banner {
+.date-banner{
   text-align:center; font-size:.75rem;
-  color:var(--parchment); opacity:.55;
-  padding:.1rem 1rem .6rem;
-  letter-spacing:.08em;
+  color:var(--parchment); opacity:.5;
+  padding:.1rem 1rem .6rem; letter-spacing:.1em;
 }
 
 /* ── 等級條 ── */
-.level-bar {
-  margin: 0 1rem .9rem;
-  background: rgba(255,255,255,.05);
-  border: 1px solid rgba(217,164,65,.25);
-  border-radius: 4px;
-  padding: .5rem .75rem;
+.level-bar{
+  margin:0 1rem .9rem;
+  background:linear-gradient(180deg,rgba(58,40,23,.7),rgba(30,22,15,.7));
+  border:1px solid rgba(224,176,74,.25);
+  border-radius:6px; padding:.55rem .8rem;
 }
-.level-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:.35rem; }
+.level-row{
+  display:flex; justify-content:space-between; align-items:center; margin-bottom:.35rem;
+}
 .level-lv  { font-family:'DotGothic16'; font-size:.75rem; color:var(--gold); }
-.level-name{ font-size:.75rem; color:var(--parchment); opacity:.7; }
-.level-exp { font-size:.7rem; color:var(--parchment); opacity:.45; }
-.progress-track {
-  height: 6px; background: rgba(255,255,255,.1); border-radius: 3px; overflow:hidden;
+.level-name{ font-size:.75rem; color:var(--parchment); opacity:.7; margin-left:.3rem; }
+.level-exp { font-size:.68rem; color:var(--parchment); opacity:.4; font-family:'DotGothic16'; }
+.progress-track{
+  height:7px; background:rgba(0,0,0,.4); border-radius:4px; overflow:hidden;
+  border:1px solid rgba(0,0,0,.4);
 }
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #b5402e, var(--gold));
-  border-radius: 3px;
-  transition: width .6s ease;
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--gold-deep),var(--gold) 70%,#ffe6a8);
+  box-shadow:0 0 8px rgba(224,176,74,.4);
+  border-radius:4px; transition:width .6s ease;
 }
 
 /* ── 懸賞卡片 ── */
-.quest-card {
-  margin: 0 1rem .9rem;
-  background: linear-gradient(160deg, #f5e8c8 0%, #ecdaaa 100%);
-  border: 1px solid #c8a060;
-  border-radius: 5px;
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 4px 14px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.4);
+.quest-card{
+  margin:0 1rem .9rem;
+  background:linear-gradient(160deg,#f5e8c8 0%,#ecdaaa 100%);
+  border:1px solid #c8a060;
+  border-radius:5px;
+  position:relative; overflow:hidden;
+  box-shadow:0 5px 16px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.5);
 }
-/* 紙張橫線質感 */
-.quest-card::after {
+/* 羊皮紙橫線質感 */
+.quest-card::after{
   content:''; position:absolute; inset:0; pointer-events:none;
-  background: repeating-linear-gradient(180deg,
-    transparent 0px, transparent 22px,
-    rgba(160,120,60,.07) 22px, rgba(160,120,60,.07) 23px);
+  background:repeating-linear-gradient(180deg,
+    transparent 0,transparent 22px,
+    rgba(160,120,60,.06) 22px,rgba(160,120,60,.06) 23px);
 }
 
-/* 卡片頂列：分類標籤 + 等級章 */
-.card-top {
+/* 卡頂：分類標籤 + 火漆章 */
+.card-top{
   display:flex; justify-content:space-between; align-items:center;
   padding:.6rem .75rem .35rem;
 }
-.category-tag {
+.category-tag{
   font-size:.68rem; font-weight:700; color:#6a3a10;
-  background: rgba(181,64,46,.15);
-  border: 1px solid rgba(181,64,46,.3);
-  padding:.15rem .55rem; border-radius:3px;
-  letter-spacing:.05em;
+  background:rgba(181,64,46,.12);
+  border:1px solid rgba(181,64,46,.28);
+  padding:.15rem .55rem; border-radius:3px; letter-spacing:.05em;
 }
-.grade-badge {
-  width:2.4rem; height:2.4rem; border-radius:50%;
+
+/* 火漆章 wax seal */
+.grade-badge{
+  width:2.5rem; height:2.5rem; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
-  font-family:'DotGothic16'; font-size:1.1rem; font-weight:700;
-  box-shadow:0 2px 8px rgba(0,0,0,.4), inset 0 -2px 3px rgba(0,0,0,.2);
-  flex-shrink:0;
+  font-family:'DotGothic16'; font-size:1.15rem; font-weight:700;
+  box-shadow:0 2px 8px rgba(0,0,0,.45), inset 0 -2px 3px rgba(0,0,0,.25);
+  flex-shrink:0; position:relative;
 }
-.grade-S { background:radial-gradient(circle at 35% 35%, #f5d060, #c8900a); color:#3a2000; }
-.grade-A { background:radial-gradient(circle at 35% 35%, #c8ddf5, #6080b0); color:#1a2840; }
-.grade-B { background:radial-gradient(circle at 35% 35%, #a8d090, #4a8040); color:#152010; }
-.grade-C { background:radial-gradient(circle at 35% 35%, #e87060, #9a1808); color:#fff; }
+.grade-badge::after{
+  content:''; position:absolute; top:15%; left:20%;
+  width:30%; height:30%; border-radius:50%;
+  background:rgba(255,255,255,.35);
+}
+/* S = 金章 */
+.grade-S{ background:radial-gradient(circle at 35% 35%,#fce678,#c89008); color:#2a1800; }
+/* A = 紅章（高評委託） */
+.grade-A{ background:radial-gradient(circle at 35% 35%,#e87878,#9a1820); color:#fff; }
+/* B = 藍章（一般委託） */
+.grade-B{ background:radial-gradient(circle at 35% 35%,#7ab8e8,#1e4f8c); color:#fff; }
+/* C = 灰章（高風險委託） */
+.grade-C{ background:radial-gradient(circle at 35% 35%,#c8c8c0,#606058); color:#1a1a18; }
 
 /* 卡片標題 */
-.card-title-row { padding:.1rem .75rem .5rem; }
-.quest-title {
-  font-size:1.05rem; font-weight:700; color:#1e1008; line-height:1.35;
-}
-.shop-location {
+.card-title-row{ padding:.1rem .75rem .5rem; }
+.quest-title{ font-size:1.05rem; font-weight:700; color:#1e1008; line-height:1.35; }
+.shop-location{
   display:flex; align-items:center; gap:.3rem;
-  font-size:.75rem; color:#6a4020; margin-top:.2rem; opacity:.85;
+  font-size:.75rem; color:#6a4020; margin-top:.25rem; opacity:.85;
 }
 
-/* 分隔線 */
-.card-divider {
-  margin:0 .75rem;
-  border:none; border-top:1px dashed rgba(160,100,30,.4);
+/* 分隔線（虛線羊皮紙風） */
+.card-divider{
+  margin:0 .75rem; border:none; border-top:1px dashed rgba(160,100,30,.4);
 }
 
 /* 詳細資訊 */
-.card-detail { padding:.45rem .75rem; }
-.detail-row  { display:flex; align-items:center; gap:.4rem; font-size:.75rem; color:#5a3818; margin-bottom:.2rem; }
-.detail-row .label { opacity:.65; flex-shrink:0; }
-.detail-row .val   { font-weight:600; }
-.star-rating { color:#c8800a; }
+.card-detail{ padding:.45rem .75rem; }
+.detail-row{ display:flex; align-items:flex-start; gap:.4rem; font-size:.75rem; color:#5a3818; margin-bottom:.2rem; }
+.detail-row .label{ opacity:.6; flex-shrink:0; }
+.detail-row .val  { font-weight:600; }
+.star-rating{ color:#c8800a; }
 
-/* 報酬 + 接令列 */
-.card-footer {
+/* 報酬 + 接令 */
+.card-footer{
   display:flex; align-items:center; justify-content:space-between;
   padding:.5rem .75rem .65rem;
-  border-top: 1px solid rgba(160,100,30,.25);
-  margin-top:.1rem;
+  border-top:1px solid rgba(160,100,30,.22); margin-top:.1rem;
 }
-.reward-text {
-  font-family:'DotGothic16'; font-size:.85rem; color:#9a2010;
-}
-.gem-pill {
-  display:inline-block;
-  font-size:.62rem; font-weight:700;
+.reward-text{ font-family:'DotGothic16'; font-size:.82rem; color:#9a2010; }
+.gem-pill{
+  display:inline-block; font-size:.6rem; font-weight:700;
   background:var(--gold); color:#2a1000;
-  padding:.05rem .35rem; border-radius:2px; margin-left:.3rem;
-  vertical-align:middle;
+  padding:.05rem .35rem; border-radius:2px; margin-left:.3rem; vertical-align:middle;
 }
-.unk-pill {
-  display:inline-block;
-  font-size:.62rem;
+.unk-pill{
+  display:inline-block; font-size:.6rem;
   background:#888; color:#fff;
   padding:.05rem .35rem; border-radius:2px;
 }
-.accept-btn {
+.accept-btn{
   display:inline-block;
-  background:var(--bg); color:var(--gold);
-  border:1.5px solid var(--gold);
-  padding:.4rem .9rem; border-radius:3px;
-  font-size:.8rem; font-weight:700; text-decoration:none;
+  background:linear-gradient(180deg,#3a2817,#241a0e);
+  color:var(--gold); border:1.5px solid rgba(224,176,74,.5);
+  padding:.42rem .95rem; border-radius:3px;
+  font-family:'DotGothic16'; font-size:.78rem; text-decoration:none;
   letter-spacing:.04em; white-space:nowrap;
+  box-shadow:0 2px 6px rgba(0,0,0,.4);
 }
 
 /* 已討伐蓋章 */
-.hunted-overlay {
+.hunted-overlay{
   position:absolute; inset:0; z-index:10;
-  background:rgba(30,20,8,.72);
+  background:rgba(24,16,6,.75);
   display:flex; align-items:center; justify-content:center;
 }
-.hunted-stamp {
+.hunted-stamp{
   border:3px solid var(--gold); color:var(--gold);
   font-family:'DotGothic16'; font-size:1.3rem;
-  padding:.4rem 1rem; border-radius:4px;
+  padding:.4rem 1.1rem; border-radius:4px;
   transform:rotate(-12deg);
   text-shadow:0 1px 4px rgba(0,0,0,.8);
+  box-shadow:0 0 0 1px rgba(0,0,0,.4);
 }
 
-/* 邊境 / 眠 / 荒涼 特殊狀態 */
-.state-banner {
+/* 邊境橫幅 */
+.state-banner{
   text-align:center; font-family:'DotGothic16';
-  color:var(--gold); font-size:.82rem;
-  padding:.5rem 1.5rem .7rem;
-  letter-spacing:.08em; opacity:.9;
+  color:var(--gold); font-size:.8rem;
+  padding:.5rem 1.5rem .7rem; letter-spacing:.1em; opacity:.85;
 }
-.state-full {
-  text-align:center; padding:3.5rem 2rem;
-}
-.state-icon  { font-size:3rem; margin-bottom:.9rem; }
-.state-title { font-family:'DotGothic16'; color:var(--gold); font-size:1.1rem; margin-bottom:.7rem; }
-.state-body  { color:var(--parchment); opacity:.55; font-size:.85rem; line-height:1.8; }
+
+/* 滿版狀態（sleeping / desolate）*/
+.state-full{ text-align:center; padding:3.5rem 2rem; }
+.state-icon { font-size:3rem; margin-bottom:.9rem; }
+.state-title{ font-family:'DotGothic16'; color:var(--gold); font-size:1.1rem; margin-bottom:.7rem; }
+.state-body { color:var(--parchment); opacity:.5; font-size:.85rem; line-height:1.9; }
 
 /* 風滾草 */
-@keyframes roll {
-  from { transform:translateX(-80px) rotate(0deg); }
-  to   { transform:translateX(420px) rotate(720deg); }
+@keyframes roll{
+  from{ transform:translateX(-80px) rotate(0deg); }
+  to  { transform:translateX(420px) rotate(720deg); }
 }
-.tumbleweed { display:inline-block; font-size:2.8rem; animation:roll 7s linear infinite; }
+.tumbleweed{ display:inline-block; font-size:2.8rem; animation:roll 7s linear infinite; }
+
+/* 回酒館 */
+.back-link{
+  display:block; text-align:center; margin:0 1rem 2.5rem;
+  color:var(--gold); border:1px solid rgba(224,176,74,.25);
+  border-radius:8px; padding:.75rem;
+  background:rgba(58,40,23,.35); text-decoration:none;
+  font-family:'DotGothic16'; font-size:.8rem; letter-spacing:.08em;
+  opacity:.75;
+}
 </style>
 {% endblock %}
 {% block content %}
+<div class="phone-wrap">
 
 <!-- 木板標題 -->
 <div class="board-sign">
+  <span class="bolt-b bolt-bl"></span>
+  <span class="bolt-b bolt-br"></span>
   <h1>懸賞板</h1>
   <p>{% if mode == 'expedition' %}遠征・{{ district }} 公會{% else %}獵人公會・開拓任務{% endif %}</p>
 </div>
@@ -208,14 +246,14 @@ body { background: #1e1408; }
 <!-- 等級條 -->
 <div class="level-bar">
   <div class="level-row">
-    <span class="level-lv">Lv.{{ level_info.level }}&nbsp;&nbsp;<span class="level-name">{{ level_info.name }}</span></span>
+    <span class="level-lv">Lv.{{ level_info.level }}<span class="level-name">　{{ level_info.name }}</span></span>
     <span class="level-exp">
-      {% if level_info.next_exp %}EXP {{ level_info.total_exp }} / {{ level_info.next_exp }}
+      {% if level_info.next_exp %}{{ level_info.total_exp }} / {{ level_info.next_exp }} EXP
       {% else %}MAX{% endif %}
     </span>
   </div>
   <div class="progress-track">
-    <div class="progress-fill" style="width:{{ level_info.progress }}%"></div>
+    <div class="progress-fill" id="expFill" data-pct="{{ level_info.progress }}" style="width:0%"></div>
   </div>
 </div>
 
@@ -240,7 +278,7 @@ body { background: #1e1408; }
       <p class="quest-title">{{ b.grade }}級委託：{{ shop.name }}</p>
       <p class="shop-location">
         📍 {{ shop.district or '未知地區' }}
-        {% if shop.get('opening_unknown') %}&nbsp;<span class="unk-pill">⚠ 出沒時間不明</span>{% endif %}
+        {% if shop.opening_unknown %}&nbsp;<span class="unk-pill">⚠ 出沒時間不明</span>{% endif %}
       </p>
     </div>
 
@@ -268,20 +306,21 @@ body { background: #1e1408; }
     <div class="card-footer">
       <span class="reward-text">
         討伐賞金：EXP +{{ b.display_exp }}
-        {% if b.is_hidden_gem %}<span class="gem-pill">★隱藏名店×2</span>{% endif %}
+        {% if b.is_hidden_gem %}<span class="gem-pill">★ 隱藏名店 ×2</span>{% endif %}
       </span>
       <a href="/bounty/{{ shop.id }}?grade={{ b.grade }}&origin={{ origin_key }}"
          class="accept-btn">接令 →</a>
     </div>
 
     {% if hunted %}
-    <div class="hunted-overlay"><span class="hunted-stamp">已討伐</span></div>
+    <div class="hunted-overlay"><span class="hunted-stamp">討伐完了</span></div>
     {% endif %}
+
   </div>
   {% endfor %}
 
   {% if sleeping_count > 0 %}
-  <p style="text-align:center;color:var(--parchment);opacity:.3;font-size:.72rem;padding:.4rem 1rem 1rem;">
+  <p style="text-align:center;color:var(--parchment);opacity:.28;font-size:.72rem;padding:.4rem 1rem 1rem;">
     另有 {{ sleeping_count }} 間店家尚在沉睡
   </p>
   {% endif %}
@@ -305,8 +344,14 @@ body { background: #1e1408; }
 </div>
 {% endif %}
 
-<div style="text-align:center;padding:1rem 0 2.5rem;">
-  <a href="/" style="color:var(--parchment);opacity:.25;font-size:.75rem;text-decoration:none;">← 回酒館</a>
-</div>
+<a href="/" class="back-link">← 回酒館</a>
 
+</div>{# /phone-wrap #}
+
+<script>
+window.addEventListener('load', () => {
+  const fill = document.getElementById('expFill');
+  if(fill) setTimeout(() => fill.style.width = fill.dataset.pct + '%', 250);
+});
+</script>
 {% endblock %}
