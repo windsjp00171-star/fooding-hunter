@@ -7,7 +7,7 @@ from flask import Blueprint, redirect, render_template, request, session, url_fo
 from app.supabase_client import get_supabase
 from app.services.bounty import (
     cell_ids_around, draw_bounties, haversine_km, is_open_now,
-    get_level_info, today_header,
+    get_level_info, today_header, get_grade, is_hidden_gem,
 )
 
 bp = Blueprint('main', __name__)
@@ -154,18 +154,114 @@ def board():
     )
 
 
+@bp.route('/bounty/<shop_id>')
+@login_required
+def bounty(shop_id):
+    grade = request.args.get('grade', 'C')
+    origin_key = request.args.get('origin', '')
+
+    sb = get_supabase()
+    shop = sb.table('shops').select('*').eq('id', shop_id).maybe_single().execute().data
+    if not shop:
+        return redirect(url_for('main.tavern'))
+
+    user_id = session['user_id']
+    prev_visits = sb.table('hunts').select('id').eq('user_id', user_id).eq('shop_id', shop_id).execute().data
+    visit_count = len(prev_visits)
+
+    _, base_reward = get_grade(shop.get('rating'))
+    gem = is_hidden_gem(shop.get('rating'), shop.get('rating_count'))
+    multiplier = (2 if gem else 1) * (0.3 if visit_count >= 1 else 1)
+    expected_exp = round(base_reward * multiplier)
+
+    return render_template('bounty_detail.html',
+        shop=shop,
+        grade=grade,
+        origin_key=origin_key,
+        visit_count=visit_count,
+        is_hidden_gem=gem,
+        expected_exp=expected_exp,
+        display_name=session['display_name'],
+    )
+
+
+@bp.route('/bounty/<shop_id>/complete', methods=['POST'])
+@login_required
+def complete_bounty(shop_id):
+    user_id = session['user_id']
+    sb = get_supabase()
+
+    grade = request.form.get('grade', 'C')
+    origin_key = request.form.get('origin_key', '')
+    player_rating = request.form.get('player_rating', type=int)
+    review_text = request.form.get('review_text', '').strip() or None
+
+    shop = sb.table('shops').select('*').eq('id', shop_id).maybe_single().execute().data
+    if not shop:
+        return redirect(url_for('main.tavern'))
+
+    # Double-submit guard: same user+shop within 1 minute → ignore
+    one_min_ago = (datetime.now(TZ) - timedelta(minutes=1)).isoformat()
+    if sb.table('hunts').select('id').eq('user_id', user_id).eq('shop_id', shop_id).gte('completed_at', one_min_ago).execute().data:
+        return redirect(url_for('main.tavern'))
+
+    # revisit count queried at completion time
+    prev_visits = sb.table('hunts').select('id').eq('user_id', user_id).eq('shop_id', shop_id).execute().data
+    visit_count = len(prev_visits)
+
+    _, base_reward = get_grade(shop.get('rating'))
+    gem = is_hidden_gem(shop.get('rating'), shop.get('rating_count'))
+    multiplier = (2 if gem else 1) * (0.3 if visit_count >= 1 else 1)
+    exp_gained = round(base_reward * multiplier)
+
+    # Capture level before insert
+    exp_rows = sb.table('hunts').select('exp_gained').eq('user_id', user_id).execute().data
+    total_exp_before = sum(h['exp_gained'] for h in exp_rows)
+    level_before = get_level_info(total_exp_before)
+
+    sb.table('hunts').insert({
+        'user_id': user_id,
+        'shop_id': shop_id,
+        'exp_gained': exp_gained,
+        'player_rating': player_rating,
+        'review_text': review_text,
+        'district': shop.get('district'),
+    }).execute()
+
+    level_after = get_level_info(total_exp_before + exp_gained)
+
+    session['last_hunt'] = {
+        'shop_name': shop['name'],
+        'shop_district': shop.get('district') or '',
+        'grade': grade,
+        'exp_gained': exp_gained,
+        'is_hidden_gem': gem,
+        'is_revisit': visit_count >= 1,
+        'leveled_up': level_after['level'] > level_before['level'],
+        'level_info': level_after,
+    }
+
+    return redirect(url_for('main.hunt_result'))
+
+
+@bp.route('/result')
+@login_required
+def hunt_result():
+    last = session.pop('last_hunt', None)
+    if not last:
+        return redirect(url_for('main.tavern'))
+    return render_template('hunt_result.html',
+        last=last,
+        display_name=session['display_name'],
+    )
+
+
 # ---- stubs ----
 
 @bp.route('/expedition')
 @login_required
 def expedition():
     return '遠征選區（施工中）', 200
-
-
-@bp.route('/bounty/<bounty_id>')
-@login_required
-def bounty(bounty_id):
-    return f'懸賞詳情 {bounty_id}（施工中）', 200
 
 
 @bp.route('/dex')
