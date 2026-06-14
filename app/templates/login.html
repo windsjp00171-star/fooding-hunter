@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}登入 — 美食獵人執照{% endblock %}
+{% block content %}
+<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:2rem;text-align:center;">
+  <p style="font-family:'DotGothic16';font-size:0.85rem;color:var(--gold);letter-spacing:0.2em;margin-bottom:0.5rem;">FOOD HUNTER LICENSE</p>
+  <h1 style="font-family:'DotGothic16';font-size:1.6rem;color:var(--parchment);margin-bottom:0.3rem;">美食獵人執照</h1>
+  <p style="color:var(--parchment);opacity:0.6;font-size:0.85rem;margin-bottom:3rem;">走進酒館，開始狩獵</p>
+
+  <a href="{{ auth_url }}"
+     style="display:block;background:#06c755;color:#fff;padding:0.9rem 2.5rem;border-radius:6px;text-decoration:none;font-weight:700;font-size:1rem;letter-spacing:0.05em;">
+    使用 LINE 登入
+  </a>
+</div>
+{% endblock %}

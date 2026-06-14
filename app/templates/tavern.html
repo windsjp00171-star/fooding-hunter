@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block title %}酒館 — 美食獵人執照{% endblock %}
+{% block content %}
+<div style="padding:1.5rem 1.25rem;">
+
+  <!-- 酒館 header -->
+  <div style="margin-bottom:1.5rem;">
+    <p style="font-family:'DotGothic16';font-size:0.75rem;color:var(--gold);letter-spacing:0.15em;margin-bottom:0.25rem;">HUNTER'S TAVERN</p>
+    <h1 style="font-family:'DotGothic16';font-size:1.4rem;color:var(--parchment);">酒館</h1>
+    <p style="font-size:0.85rem;color:var(--parchment);opacity:0.65;margin-top:0.3rem;">
+      歡迎回來，{{ display_name }} 獵人
+    </p>
+  </div>
+
+  <!-- 老闆娘台詞佔位 -->
+  <div style="background:rgba(243,230,196,0.08);border:1px solid rgba(217,164,65,0.3);border-radius:6px;padding:1rem;margin-bottom:2rem;font-size:0.875rem;line-height:1.6;color:var(--parchment);opacity:0.8;">
+    「今天有什麼好吃的嗎？去探探看吧。」
+  </div>
+
+  <!-- 主要入口 -->
+  <div style="display:flex;flex-direction:column;gap:0.875rem;">
+    <a href="/board?mode=explore"
+       style="display:block;background:var(--red);color:var(--parchment);padding:1.1rem 1rem;border-radius:6px;text-decoration:none;font-weight:700;font-size:1rem;text-align:center;">
+      🧭 搜索此地
+      <span style="display:block;font-size:0.75rem;font-weight:400;opacity:0.8;margin-top:0.2rem;">開拓模式・GPS 定位</span>
+    </a>
+
+    <a href="/expedition"
+       style="display:block;background:transparent;color:var(--gold);padding:1rem;border:2px solid var(--gold);border-radius:6px;text-decoration:none;font-size:0.95rem;text-align:center;">
+      🗺 遠征規劃
+      <span style="display:block;font-size:0.75rem;opacity:0.7;margin-top:0.2rem;">選行政區・規劃週末遠征</span>
+    </a>
+
+    <a href="/dex"
+       style="display:block;color:var(--parchment);opacity:0.6;padding:0.75rem;text-decoration:none;font-size:0.875rem;text-align:center;">
+      📖 美食圖鑑
+    </a>
+  </div>
+
+  <a href="/logout"
+     style="display:block;margin-top:3rem;color:var(--parchment);opacity:0.3;font-size:0.75rem;text-align:center;text-decoration:none;">
+    登出
+  </a>
+</div>
+{% endblock %}
