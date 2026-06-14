@@ -89,6 +89,11 @@ def board():
         origin_key = district
         radius_km = 2.5
 
+    # Fetch from Places API if this cell is stale (no-op if cached or no key)
+    if mode == 'explore':
+        from app.services.places import ensure_shops_fetched
+        ensure_shops_fetched(center_lat, center_lng)
+
     # Query shops in surrounding cells
     sb = get_supabase()
     cells = cell_ids_around(center_lat, center_lng)
