@@ -9,8 +9,8 @@ from app.supabase_client import get_supabase
 
 bp = Blueprint('auth', __name__)
 
-_LINE_AUTH_URL = 'https://access.linecorp.com/oauth2/v2.1/authorize'
-_LINE_TOKEN_URL = 'https://access.linecorp.com/oauth2/v2.1/token'
+_LINE_AUTH_URL = 'https://access.line.me/oauth2/v2.1/authorize'
+_LINE_TOKEN_URL = 'https://api.line.me/oauth2/v2.1/token'
 _LINE_PROFILE_URL = 'https://api.line.me/v2/profile'
 
 
