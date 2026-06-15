@@ -15,19 +15,16 @@
   --gold:#d9a441; --gold-deep:#9c7320;
 }
 
-/* 木板牆背景：多層疊出真實木紋 */
+/* 後牆：刻意調暗，讓告示板跳出來 */
 body{
   background:
     repeating-linear-gradient(90deg,
-      transparent 0 86px, rgba(0,0,0,.45) 86px 88px,
-      rgba(255,220,160,.04) 88px 90px, transparent 90px 92px),
-    repeating-linear-gradient(2deg, rgba(0,0,0,.05) 0 3px, transparent 3px 9px),
-    radial-gradient(ellipse 40px 16px at 22% 14%, rgba(0,0,0,.3), transparent 70%),
-    radial-gradient(ellipse 30px 12px at 68% 38%, rgba(0,0,0,.25), transparent 70%),
-    radial-gradient(ellipse 50px 20px at 40% 72%, rgba(0,0,0,.22), transparent 70%),
-    radial-gradient(120% 36% at 50% -4%, rgba(255,180,90,.14), transparent 60%),
-    linear-gradient(170deg, var(--wood-1), var(--wood-2) 55%, var(--wood-3));
-  box-shadow:inset 0 0 80px rgba(0,0,0,.6);
+      transparent 0 60px, rgba(0,0,0,.5) 60px 63px,
+      rgba(255,220,160,.03) 63px 65px, transparent 65px 68px),
+    repeating-linear-gradient(1deg, rgba(0,0,0,.06) 0 4px, transparent 4px 11px),
+    radial-gradient(130% 40% at 50% -5%, rgba(255,180,90,.12), transparent 60%),
+    linear-gradient(170deg, #2c1f13, #1d1308 60%, #160f08);
+  box-shadow:inset 0 0 90px rgba(0,0,0,.7);
 }
 .board-wrap{ padding:22px 18px 40px; }
 
@@ -76,6 +73,47 @@ body{
   background:radial-gradient(circle at 35% 30%,#6b6256,#2a2620);
 }
 .notice::before{ left:8px; } .notice::after{ right:8px; }
+
+/* ── 實體告示板：厚木框 + 鉚釘 + 浮牆陰影 ── */
+.notice-board{
+  position:relative; margin:0 2px; padding:24px 16px 22px;
+  border-radius:10px;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(0,0,0,.16) 0 1px, transparent 1px 4px,
+      rgba(255,220,160,.03) 4px 5px, transparent 5px 56px),
+    repeating-linear-gradient(88deg, rgba(0,0,0,.05) 0 3px, transparent 3px 10px),
+    linear-gradient(160deg, #5a3d22, #46301b 55%, #382615);
+  border:12px solid transparent;
+  border-image:linear-gradient(150deg, #7a5430, #4a3119 45%, #5a3d22 70%, #2e1d0e) 1;
+  box-shadow:
+    0 16px 36px rgba(0,0,0,.6),
+    0 6px 12px rgba(0,0,0,.5),
+    inset 0 2px 10px rgba(0,0,0,.5),
+    inset 0 0 60px rgba(0,0,0,.3),
+    inset 0 1px 0 rgba(255,220,160,.12);
+}
+.notice-board::before{
+  content:""; position:absolute; inset:-12px; border-radius:12px; pointer-events:none;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.6), 0 0 0 1px rgba(0,0,0,.4);
+}
+/* 四角鉚釘 */
+.rivet{
+  position:absolute; width:18px; height:18px; border-radius:50%; z-index:5;
+  background:
+    radial-gradient(circle at 36% 30%, #f0e8d6 0 14%, transparent 15%),
+    radial-gradient(circle at 50% 55%, #9a8f7e, #4a443a 55%, #1a1610);
+  box-shadow:0 2px 5px rgba(0,0,0,.7), inset 0 -2px 3px rgba(0,0,0,.6);
+}
+.rivet.tl{ top:-4px; left:-4px; }  .rivet.tr{ top:-4px; right:-4px; }
+.rivet.bl{ bottom:-4px; left:-4px; } .rivet.br{ bottom:-4px; right:-4px; }
+/* 板頂公會烙印 */
+.board-brand{
+  text-align:center; font-family:'DotGothic16'; font-size:11px; letter-spacing:.35em;
+  color:#caa164; margin-bottom:18px; text-indent:.35em;
+  text-shadow:0 1px 0 rgba(0,0,0,.6);
+}
+.board-brand::before,.board-brand::after{ content:"◆"; margin:0 8px; color:#8a6432; font-size:8px; vertical-align:middle; }
 
 /* ── 懸賞令：羊皮紙 + 釘子 + 火漆章 ── */
 .bounty{
@@ -266,6 +304,11 @@ body{
     <div class="notice">此乃邊境補給站，懸賞稀少，獵人自重。</div>
     {% endif %}
 
+    <div class="notice-board">
+      <span class="rivet tl"></span><span class="rivet tr"></span>
+      <span class="rivet bl"></span><span class="rivet br"></span>
+      <div class="board-brand">獵 人 公 會 ・ 委 託</div>
+
     {% for b in bounties %}
     {% set shop = b.shop %}
     {% set hunted = shop.id in all_hunted_ids %}
@@ -305,6 +348,8 @@ body{
     {% if sleeping_count and sleeping_count > 0 %}
     <p class="sleeping-note">另有 {{ sleeping_count }} 間店家尚在沉睡</p>
     {% endif %}
+
+    </div>{# /notice-board #}
 
   {# ── SLEEPING ── #}
   {% elif state == 'sleeping' %}
