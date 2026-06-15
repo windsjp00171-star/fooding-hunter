@@ -309,10 +309,36 @@ def expedition():
 @bp.route('/dex')
 @login_required
 def dex():
-    return '圖鑑（施工中）', 200
+    user_id = session['user_id']
+    sb = get_supabase()
 
+    hunts = sb.table('hunts').select(
+        'shop_id, exp_gained, player_rating, completed_at, district'
+    ).eq('user_id', user_id).order('completed_at', desc=True).execute().data
 
-@bp.route('/dex/<shop_id>')
-@login_required
-def dex_shop(shop_id):
-    return f'圖鑑單頁 {shop_id}（施工中）', 200
+    shop_ids = list({h['shop_id'] for h in hunts})
+    shops_map = {}
+    if shop_ids:
+        shops_raw = sb.table('shops').select('id, name, rating, place_id, cuisine').in_('id', shop_ids).execute().data
+        shops_map = {s['id']: s for s in shops_raw}
+
+    # Group hunts by district; None → '未知地區'
+    grouped: dict[str, list] = {}
+    district_counts: dict[str, int] = {}
+    for h in hunts:
+        d = h.get('district') or '未知地區'
+        grouped.setdefault(d, []).append(h)
+        if h.get('district'):
+            district_counts[h['district']] = district_counts.get(h['district'], 0) + 1
+
+    total_exp = sum(h['exp_gained'] for h in hunts)
+    level_info = get_level_info(total_exp)
+
+    return render_template('dex.html',
+        grouped=grouped,
+        district_counts=district_counts,
+        shops_map=shops_map,
+        total_hunts=len(hunts),
+        level_info=level_info,
+        display_name=session['display_name'],
+    )
