@@ -118,9 +118,19 @@ body{
 .submit-btn:active{ transform:translateY(3px); box-shadow:0 1px 0 #5e1c11, 0 2px 6px rgba(0,0,0,.35); }
 .submit-btn:disabled{ opacity:.5; transform:none; cursor:not-allowed; }
 
-.rating-hint{ text-align:center; font-size:11px; color:#9a7a50; margin-top:6px; letter-spacing:.05em; }
-
-@media (prefers-reduced-motion:reduce){ *{ transition:none!important; } }
+/* 地圖按鈕 */
+.map-btn{
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; margin-top:16px; padding:12px;
+  font-family:'DotGothic16'; font-size:14px; color:#3a2808;
+  text-decoration:none; border-radius:3px;
+  background:linear-gradient(180deg,#d8bc8a,#c0a468);
+  border:1px solid #9e8045;
+  box-shadow:0 3px 0 #7a6030, 0 5px 10px rgba(0,0,0,.3),
+             inset 0 1px 0 rgba(255,255,255,.25);
+  transition:transform .06s, box-shadow .06s;
+}
+.map-btn:active{ transform:translateY(3px); box-shadow:0 0 0 #7a6030, 0 2px 6px rgba(0,0,0,.3); }
 </style>
 {% endblock %}
 {% block content %}
@@ -171,6 +181,9 @@ body{
       本次討伐賞金
       <span class="big">EXP +{{ expected_exp }}</span>
     </div>
+
+    <a href="https://www.google.com/maps/search/?api=1&query={{ shop.name | urlencode }}&query_place_id={{ shop.place_id }}"
+       target="_blank" rel="noopener" class="map-btn">🗺 出發討伐（開地圖）</a>
 
     <div class="scroll-divider"></div>
 
