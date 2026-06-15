@@ -15,12 +15,15 @@ _LINE_PROFILE_URL = 'https://api.line.me/v2/profile'
 
 
 def _build_line_auth_url() -> str:
+    callback_url = os.environ.get('LINE_CALLBACK_URL')
+    if not callback_url:
+        raise RuntimeError('LINE_CALLBACK_URL is not set. Add it to your environment variables.')
     state = secrets.token_urlsafe(16)
     session['oauth_state'] = state
     return _LINE_AUTH_URL + '?' + urlencode({
         'response_type': 'code',
         'client_id': os.environ['LINE_CHANNEL_ID'],
-        'redirect_uri': os.environ['LINE_CALLBACK_URL'],
+        'redirect_uri': callback_url,
         'state': state,
         'scope': 'profile openid',
     })
