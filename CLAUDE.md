@@ -74,7 +74,7 @@ exp_gained = round(base * multiplier)
 - district = null 的 hunts 不計入稱號
 
 ## 技術備忘
-- Supabase 用 `maybe_single()` 不用 `single()`
+- Supabase 查單筆用 `fetch_one(query)`（app/supabase_client.py），**不要用 `maybe_single()`**：某些 supabase-py 版本在 0 筆時回 HTTP 406 並丟例外，會把「查無資料」變成 500（曾導致所有新用戶登入 500）
 - 改 schema 後需 reload PostgREST schema cache
 - Places API 欄位回應可能為 None，務必防呆
 - Geolocation 需 HTTPS（本機 localhost 例外，或用 ngrok）

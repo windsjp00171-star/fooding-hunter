@@ -5,7 +5,7 @@ from urllib.parse import urlencode
 import requests
 from flask import Blueprint, redirect, render_template, request, session, url_for
 
-from app.supabase_client import get_supabase
+from app.supabase_client import get_supabase, fetch_one
 
 bp = Blueprint('auth', __name__)
 
@@ -57,8 +57,8 @@ def callback():
     display_name = profile.get('displayName', '')
     sb = get_supabase()
 
-    existing = sb.table('users').select('id').eq('id', user_id).maybe_single().execute()
-    is_new_user = existing.data is None
+    existing = fetch_one(sb.table('users').select('id').eq('id', user_id))
+    is_new_user = existing is None
 
     sb.table('users').upsert({
         'id': user_id,

@@ -5,7 +5,7 @@ from zoneinfo import ZoneInfo
 
 from flask import Blueprint, redirect, render_template, request, session, url_for
 
-from app.supabase_client import get_supabase
+from app.supabase_client import get_supabase, fetch_one
 from app.services.bounty import (
     cell_ids_around, draw_bounties, haversine_km, is_open_now,
     get_level_info, today_header, get_grade, is_hidden_gem,
@@ -66,7 +66,7 @@ def tavern():
     user_id = session['user_id']
     sb = get_supabase()
 
-    user_row = sb.table('users').select('keeper_id').eq('id', user_id).maybe_single().execute().data
+    user_row = fetch_one(sb.table('users').select('keeper_id').eq('id', user_id))
     keeper_id = (user_row or {}).get('keeper_id') or 'dad'
 
     hunts = sb.table('hunts').select('exp_gained, district').eq('user_id', user_id).execute().data
@@ -183,7 +183,7 @@ def board():
     level_info = get_level_info(_total_exp(sb, user_id))
 
     # Daily reroll quota (limit = current level; no write on GET)
-    urow = sb.table('users').select('reroll_used_today, reroll_reset_date').eq('id', user_id).maybe_single().execute().data or {}
+    urow = fetch_one(sb.table('users').select('reroll_used_today, reroll_reset_date').eq('id', user_id)) or {}
     reroll_used, reroll_limit, reroll_left = _reroll_quota(
         urow.get('reroll_used_today'), urow.get('reroll_reset_date'), level_info['level'])
 
@@ -226,7 +226,7 @@ def board_reroll():
 
     level = get_level_info(_total_exp(sb, user_id))['level']
 
-    urow = sb.table('users').select('reroll_used_today, reroll_reset_date').eq('id', user_id).maybe_single().execute().data or {}
+    urow = fetch_one(sb.table('users').select('reroll_used_today, reroll_reset_date').eq('id', user_id)) or {}
     eff, _limit, left = _reroll_quota(urow.get('reroll_used_today'), urow.get('reroll_reset_date'), level)
     if left > 0:
         today = datetime.now(TZ).date().isoformat()
@@ -251,7 +251,7 @@ def bounty(shop_id):
     origin_key = request.args.get('origin', '')
 
     sb = get_supabase()
-    shop = sb.table('shops').select('*').eq('id', shop_id).maybe_single().execute().data
+    shop = fetch_one(sb.table('shops').select('*').eq('id', shop_id))
     if not shop:
         return redirect(url_for('main.tavern'))
 
@@ -296,7 +296,7 @@ def complete_bounty(shop_id):
     player_rating = request.form.get('player_rating', type=int)
     review_text = request.form.get('review_text', '').strip() or None
 
-    shop = sb.table('shops').select('*').eq('id', shop_id).maybe_single().execute().data
+    shop = fetch_one(sb.table('shops').select('*').eq('id', shop_id))
     if not shop:
         return redirect(url_for('main.tavern'))
 
