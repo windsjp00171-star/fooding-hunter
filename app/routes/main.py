@@ -9,6 +9,7 @@ from app.services.bounty import (
     cell_ids_around, draw_bounties, haversine_km, is_open_now,
     get_level_info, today_header, get_grade, is_hidden_gem,
 )
+from app.flavor import make_flavor
 
 bp = Blueprint('main', __name__)
 TZ = ZoneInfo('Asia/Taipei')
@@ -208,6 +209,7 @@ def bounty(shop_id):
         visit_count=visit_count,
         is_hidden_gem=gem,
         expected_exp=expected_exp,
+        flavor=make_flavor(shop, grade, gem),
         display_name=session['display_name'],
     )
 

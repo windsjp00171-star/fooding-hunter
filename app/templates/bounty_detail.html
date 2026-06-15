@@ -59,7 +59,12 @@ body{
 .quest-type{ font-family:'DotGothic16'; font-size:11px; letter-spacing:.18em; color:var(--seal);
   border:1px solid var(--seal); display:inline-block; padding:1px 8px; border-radius:2px;
   background:rgba(181,64,46,.06); margin-left:62px; margin-bottom:8px; }
-.quest-name{ font-family:'DotGothic16'; font-size:22px; line-height:1.3; color:#2b2012; margin-bottom:4px; }
+.quest-name{ font-family:'DotGothic16'; font-size:21px; line-height:1.3; color:#7a2418; margin-bottom:2px;
+  text-shadow:0 1px 0 rgba(255,255,255,.3); }
+.b-shop-name{ font-size:12.5px; color:var(--ink-soft); margin-bottom:6px; }
+.b-shop-name::before{ content:"⚑ "; }
+.quest-flavor{ font-size:12px; line-height:1.7; color:#5a4530; font-style:italic;
+  border-left:2px solid rgba(181,64,46,.3); padding-left:9px; margin-bottom:12px; }
 .quest-loc{ font-size:13px; color:var(--ink-soft); margin-bottom:16px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
 
 .divider{ height:1px; background:repeating-linear-gradient(90deg,#b59a64 0 5px,transparent 5px 9px); margin:0 0 14px; }
@@ -141,13 +146,10 @@ body{
   <div class="scroll">
     <span class="seal-badge {{ grade }}">{{ grade }}</span>
 
-    <div class="quest-type">
-      {% if grade == 'S' %}傳說委託
-      {% elif grade == 'A' %}高評委託
-      {% elif grade == 'B' %}一般委託
-      {% else %}高風險委託{% endif %}
-    </div>
-    <h1 class="quest-name">{{ shop.name }}</h1>
+    <div class="quest-type">{{ flavor.monster_tag }}</div>
+    <h1 class="quest-name">{{ flavor.quest_title }}</h1>
+    <div class="b-shop-name">{{ shop.name }}</div>
+    <p class="quest-flavor">{{ flavor.quest_desc }}</p>
     <div class="quest-loc">
       📍 {{ shop.district or '未知地區' }}
       {% if shop.address %}<span style="opacity:.6">{{ shop.address }}</span>{% endif %}
