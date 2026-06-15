@@ -267,6 +267,24 @@ body{
 @keyframes roll{ from{ transform:translateX(-80px) rotate(0); } to{ transform:translateX(420px) rotate(720deg); } }
 .tumbleweed{ display:inline-block; font-size:2.8rem; animation:roll 7s linear infinite; }
 
+/* ── 重新張貼委託 ── */
+.reroll-zone{ text-align:center; margin:26px 4px 4px; }
+.reroll-btn{
+  font-family:'DotGothic16'; font-size:15px; letter-spacing:.06em; color:#3a2614;
+  cursor:pointer; border:none; padding:12px 26px; border-radius:4px;
+  background:linear-gradient(180deg,#e8d4a4,#cdb074 60%,#b8975a);
+  box-shadow:0 3px 0 #8a7038, 0 5px 10px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.35);
+  transition:transform .06s, box-shadow .06s;
+}
+.reroll-btn:active{ transform:translateY(3px); box-shadow:0 0 0 #8a7038, 0 2px 6px rgba(0,0,0,.35); }
+.reroll-btn.disabled{
+  background:linear-gradient(180deg,#5a4f3c,#473d2d); color:#8a7e64;
+  box-shadow:0 2px 0 #2e2619, inset 0 1px 0 rgba(255,255,255,.05); cursor:not-allowed;
+}
+.reroll-count{ font-family:'DotGothic16'; font-size:12px; color:#c9a866; margin-top:10px; letter-spacing:.05em; }
+.reroll-hint{ font-size:11px; color:#9a8259; opacity:.8; margin-top:4px; }
+.reroll-exhausted{ font-size:12px; color:#9a8259; margin-top:10px; line-height:1.7; font-family:'DotGothic16'; letter-spacing:.04em; }
+
 /* 回酒館 */
 .back-link{ display:block; text-align:center; margin-top:8px; color:#b89a64; font-size:13px; font-family:'DotGothic16'; letter-spacing:.08em; text-decoration:none; }
 .back-link:hover{ color:var(--gold); }
@@ -358,6 +376,24 @@ body{
     {% endif %}
 
     </div>{# /notice-board #}
+
+    {# ── 重新張貼委託 ── #}
+    <div class="reroll-zone">
+      {% if reroll_left > 0 %}
+      <form method="post" action="/board/reroll">
+        <input type="hidden" name="mode" value="{{ mode }}">
+        <input type="hidden" name="lat" value="{{ lat if lat is not none else '' }}">
+        <input type="hidden" name="lng" value="{{ lng if lng is not none else '' }}">
+        <input type="hidden" name="district" value="{{ district or '' }}">
+        <button type="submit" class="reroll-btn">⟳ 重新張貼委託</button>
+      </form>
+      <p class="reroll-count">今日可重張貼 {{ reroll_left }}/{{ reroll_limit }}</p>
+      <p class="reroll-hint">升級可解鎖更多次數</p>
+      {% else %}
+      <button class="reroll-btn disabled" disabled>⟳ 重新張貼委託</button>
+      <p class="reroll-exhausted">今日的委託已看遍，獵人。<br>明日公會將張貼新的委託。</p>
+      {% endif %}
+    </div>
 
   {# ── SLEEPING ── #}
   {% elif state == 'sleeping' %}

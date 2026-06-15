@@ -131,13 +131,14 @@ def is_open_now(opening_hours, now=None):
     return False
 
 
-def draw_bounties(shops, user_id, origin_key, exclude_ids, count=3):
+def draw_bounties(shops, user_id, origin_key, exclude_ids, count=3, reroll_used=0):
     """
     Seed-based draw. exclude_ids = shop IDs hunted within 7 days.
+    reroll_used shifts the seed so each daily reroll yields a different set.
     Returns list of dicts: {shop, grade, base_reward, is_hidden_gem}.
     """
     today = datetime.now(TZ).strftime('%Y-%m-%d')
-    rng = random.Random(f"{user_id}_{today}_{origin_key}")
+    rng = random.Random(f"{user_id}_{today}_{origin_key}_{reroll_used}")
     pool = [s for s in shops if s['id'] not in exclude_ids]
     rng.shuffle(pool)
 

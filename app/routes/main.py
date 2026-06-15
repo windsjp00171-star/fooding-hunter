@@ -25,6 +25,19 @@ def login_required(f):
     return decorated
 
 
+def _total_exp(sb, user_id):
+    rows = sb.table('hunts').select('exp_gained').eq('user_id', user_id).execute().data
+    return sum(h['exp_gained'] for h in rows)
+
+
+def _reroll_quota(used, reset_date, level):
+    """Pure: daily reroll limit = current level. Quota resets on day change
+    (Asia/Taipei). Returns (effective_used, limit, remaining)."""
+    today = datetime.now(TZ).date().isoformat()
+    eff = 0 if reset_date != today else (used or 0)
+    return eff, level, max(level - eff, 0)
+
+
 @bp.route('/welcome')
 @login_required
 def welcome():
@@ -164,8 +177,16 @@ def board():
     all_hunted = sb.table('hunts').select('shop_id').eq('user_id', user_id).execute().data
     all_hunted_ids = {h['shop_id'] for h in all_hunted}
 
-    # Draw
-    bounties = draw_bounties(available, user_id, origin_key, exclude_ids, count=3)
+    # Level info (also drives daily reroll quota)
+    level_info = get_level_info(_total_exp(sb, user_id))
+
+    # Daily reroll quota (limit = current level; no write on GET)
+    urow = sb.table('users').select('reroll_used_today, reroll_reset_date').eq('id', user_id).maybe_single().execute().data or {}
+    reroll_used, reroll_limit, reroll_left = _reroll_quota(
+        urow.get('reroll_used_today'), urow.get('reroll_reset_date'), level_info['level'])
+
+    # Draw (reroll_used shifts the seed)
+    bounties = draw_bounties(available, user_id, origin_key, exclude_ids, count=3, reroll_used=reroll_used)
 
     # Four-state logic
     if not shops:
@@ -177,11 +198,6 @@ def board():
     else:
         state = 'normal'
 
-    # Level info
-    exp_rows = sb.table('hunts').select('exp_gained').eq('user_id', user_id).execute().data
-    total_exp = sum(h['exp_gained'] for h in exp_rows)
-    level_info = get_level_info(total_exp)
-
     return render_template('board.html',
         mode=mode,
         state=state,
@@ -192,9 +208,37 @@ def board():
         district=district,
         lat=lat, lng=lng,
         level_info=level_info,
+        reroll_limit=reroll_limit,
+        reroll_left=reroll_left,
         date_header=today_header(),
         display_name=session['display_name'],
     )
+
+
+@bp.route('/board/reroll', methods=['POST'])
+@login_required
+def board_reroll():
+    user_id = session['user_id']
+    sb = get_supabase()
+
+    level = get_level_info(_total_exp(sb, user_id))['level']
+
+    urow = sb.table('users').select('reroll_used_today, reroll_reset_date').eq('id', user_id).maybe_single().execute().data or {}
+    eff, _limit, left = _reroll_quota(urow.get('reroll_used_today'), urow.get('reroll_reset_date'), level)
+    if left > 0:
+        today = datetime.now(TZ).date().isoformat()
+        sb.table('users').update({
+            'reroll_used_today': eff + 1,
+            'reroll_reset_date': today,
+        }).eq('id', user_id).execute()
+
+    # PRG: redirect back to the same board view
+    mode = request.form.get('mode', 'explore')
+    if mode == 'expedition':
+        params = {'mode': 'expedition', 'district': request.form.get('district', '')}
+    else:
+        params = {'mode': 'explore', 'lat': request.form.get('lat', ''), 'lng': request.form.get('lng', '')}
+    return redirect(url_for('main.board', **params))
 
 
 @bp.route('/bounty/<shop_id>')
