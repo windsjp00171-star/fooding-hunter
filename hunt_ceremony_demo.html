@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>討伐完成儀式・示範</title>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#15100b; --wood-1:#3a2817; --wood-2:#2c1d11;
+    --parch-hi:#f6ead0; --parch:#ecdcb4; --parch-lo:#dcc794;
+    --ink:#2b2012; --ink-soft:#7a6038;
+    --seal:#b5402e; --seal-deep:#8a2c1c; --gold:#d9a441; --gold-deep:#9c7320;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Noto Sans TC',sans-serif;max-width:430px;margin:0 auto;min-height:100vh;
+    color:var(--parch);background:linear-gradient(170deg,#2c1f13,#15100b);padding:0}
+  .screen{display:none;min-height:100vh;flex-direction:column;align-items:center;justify-content:center;padding:24px 22px}
+  .screen.active{display:flex}
+
+  /* ===== 步驟1:強制評斷 ===== */
+  .rate-card{width:100%;background:linear-gradient(160deg,var(--parch-hi),var(--parch) 55%,var(--parch-lo));
+    color:var(--ink);border-radius:6px;padding:24px 20px;box-shadow:0 10px 30px rgba(0,0,0,.5);
+    clip-path:polygon(0 1%,99% 0,100% 99%,1% 100%)}
+  .rate-card h2{font-family:'DotGothic16';font-size:20px;color:#7a2418;text-align:center;margin-bottom:6px}
+  .rate-card .shop{text-align:center;font-size:13px;color:var(--ink-soft);margin-bottom:20px}
+  .rate-label{font-family:'DotGothic16';font-size:13px;color:var(--ink);margin-bottom:8px}
+  .stars{display:flex;justify-content:center;gap:6px;margin-bottom:20px}
+  .star{font-size:38px;color:#cbb88a;cursor:pointer;transition:transform .1s,color .15s}
+  .star.on{color:#e0a942}
+  .star:active{transform:scale(1.2)}
+  .review-box{width:100%;border:1.5px solid #b59a64;border-radius:4px;background:rgba(255,255,255,.5);
+    padding:10px;font-family:'Noto Sans TC';font-size:14px;color:var(--ink);resize:none;margin-bottom:6px}
+  .review-hint{font-size:11px;color:var(--ink-soft);margin-bottom:18px}
+  .submit-btn{width:100%;font-family:'DotGothic16';font-size:16px;color:#f6ead0;border:none;cursor:pointer;
+    padding:14px;border-radius:4px;background:linear-gradient(180deg,#b5402e,#8a2c1c);
+    box-shadow:0 4px 0 #5e1c11,0 6px 14px rgba(0,0,0,.35);transition:all .1s}
+  .submit-btn:disabled{background:linear-gradient(180deg,#9a9a8e,#6f6f64);box-shadow:0 4px 0 #4a4a40;cursor:not-allowed;opacity:.7}
+  .submit-btn:not(:disabled):active{transform:translateY(4px);box-shadow:0 0 0 #5e1c11}
+  .lock-note{text-align:center;font-size:11px;color:var(--seal);margin-top:10px;height:14px}
+
+  /* ===== 步驟2:勝利儀式 ===== */
+  .victory{text-align:center}
+  .vic-banner{font-family:'DotGothic16';font-size:34px;color:var(--gold);letter-spacing:.1em;
+    text-shadow:0 2px 0 #160f08,0 0 26px rgba(255,180,90,.5);opacity:0;transform:scale(.5)}
+  .victory.go .vic-banner{animation:vic-pop .6s cubic-bezier(.34,1.6,.5,1) forwards}
+  @keyframes vic-pop{to{opacity:1;transform:scale(1)}}
+
+  .vic-seal{width:110px;height:110px;border-radius:50%;margin:24px auto;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'DotGothic16';font-size:24px;color:#fff5e8;line-height:1.2;text-align:center;
+    background:radial-gradient(circle at 38% 32%,#d36c52,#b5402e 55%,#7e2417);
+    clip-path:polygon(50% 0,63% 8%,78% 4%,84% 18%,97% 26%,92% 42%,100% 54%,90% 66%,93% 82%,77% 84%,67% 96%,52% 89%,37% 97%,28% 84%,12% 85%,16% 68%,4% 56%,12% 43%,5% 27%,20% 22%,25% 7%,40% 11%);
+    box-shadow:0 4px 10px rgba(0,0,0,.4),inset 0 2px 5px rgba(255,255,255,.25);
+    opacity:0;transform:scale(3) rotate(-30deg)}
+  .victory.go .vic-seal{animation:seal-slam .5s cubic-bezier(.5,0,.4,1.4) .5s forwards}
+  @keyframes seal-slam{0%{opacity:0;transform:scale(3) rotate(-30deg)}
+    60%{opacity:1;transform:scale(.92) rotate(-12deg)}80%{transform:scale(1.06) rotate(-12deg)}100%{opacity:1;transform:scale(1) rotate(-12deg)}}
+
+  .vic-exp{font-family:'DotGothic16';font-size:30px;color:var(--gold);margin-top:6px;opacity:0}
+  .victory.go .vic-exp{animation:fade-in .4s ease 1.1s forwards}
+  .vic-exp .num{color:#ffe6a8}
+  .vic-comment{font-size:14px;color:#e8cfa0;margin-top:12px;opacity:0}
+  .victory.go .vic-comment{animation:fade-in .5s ease 1.5s forwards}
+  @keyframes fade-in{to{opacity:1}}
+  .next-btn{margin-top:30px;font-family:'DotGothic16';font-size:15px;color:var(--gold);cursor:pointer;
+    border:1.5px solid var(--gold);border-radius:6px;padding:12px 28px;background:rgba(217,164,65,.1);opacity:0}
+  .victory.go .next-btn{animation:fade-in .5s ease 2s forwards}
+
+  /* ===== 步驟3:拍立得戰績卡(證物) ===== */
+  .trophy-wrap{text-align:center;width:100%}
+  .trophy-title{font-family:'DotGothic16';font-size:15px;color:var(--gold-deep);letter-spacing:.2em;margin-bottom:16px}
+  .polaroid{width:260px;margin:0 auto;background:#fdfdfa;padding:12px 12px 0;border-radius:3px;
+    box-shadow:0 12px 30px rgba(0,0,0,.55);transform:rotate(-2deg)}
+  .pol-photo{width:100%;height:180px;border-radius:2px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,#3a2817,#2c1d11);position:relative;overflow:hidden}
+  .pol-photo .seal-big{font-family:'DotGothic16';font-size:54px;color:#d9a441;opacity:.5}
+  .pol-photo .add-photo{position:absolute;bottom:8px;right:8px;font-size:11px;color:#f6ead0;
+    background:rgba(0,0,0,.5);padding:4px 8px;border-radius:3px;cursor:pointer}
+  .pol-caption{padding:12px 4px 16px;text-align:left;color:#2b2012}
+  .pol-shop{font-family:'DotGothic16';font-size:15px;margin-bottom:3px}
+  .pol-meta{font-size:11px;color:#7a6038;line-height:1.5}
+  .pol-stars{color:#e0a942;font-size:13px}
+  .trophy-actions{display:flex;gap:10px;margin-top:22px;justify-content:center}
+  .t-btn{font-family:'DotGothic16';font-size:14px;padding:11px 20px;border-radius:5px;cursor:pointer;text-decoration:none}
+  .t-share{background:linear-gradient(180deg,#e0a942,#c98e2c);color:#1a1008;box-shadow:0 3px 0 #8a5e18}
+  .t-back{background:rgba(58,40,23,.6);color:var(--parch);border:1px solid rgba(224,176,74,.3)}
+
+  .demo-nav{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);z-index:99;
+    font-size:11px;color:#8a7250;font-family:'DotGothic16';background:rgba(0,0,0,.5);padding:5px 12px;border-radius:4px}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01s!important}}
+</style>
+</head>
+<body>
+
+<!-- 步驟1:強制評斷 -->
+<div class="screen active" id="s1">
+  <div class="rate-card">
+    <h2>討伐完成評斷</h2>
+    <div class="shop">⚑ 阿財虱目魚粥・中西區</div>
+    <div class="rate-label">這場討伐,你給幾分?（必填）</div>
+    <div class="stars" id="stars">
+      <span class="star" data-v="1">★</span><span class="star" data-v="2">★</span>
+      <span class="star" data-v="3">★</span><span class="star" data-v="4">★</span><span class="star" data-v="5">★</span>
+    </div>
+    <div class="rate-label">留下你的獵人筆記（選填）</div>
+    <textarea class="review-box" id="review" rows="2" placeholder="這次討伐的心得…"></textarea>
+    <div class="review-hint">※ 筆記僅你自己看得到,會收進美食圖鑑</div>
+    <button class="submit-btn" id="submit" disabled>提交評斷・完成討伐</button>
+    <div class="lock-note" id="lockNote">請先給予星數評價</div>
+  </div>
+</div>
+
+<!-- 步驟2:勝利儀式 -->
+<div class="screen" id="s2">
+  <div class="victory" id="victory">
+    <div class="vic-banner">討伐成功！</div>
+    <div class="vic-seal">討伐<br>完了</div>
+    <div class="vic-exp">EXP <span class="num">+100</span></div>
+    <div class="vic-comment">⟡ 發現隱藏名店！賞金加倍！</div>
+    <div class="next-btn" id="toTrophy">領取戰績卡 →</div>
+  </div>
+</div>
+
+<!-- 步驟3:拍立得戰績卡 -->
+<div class="screen" id="s3">
+  <div class="trophy-wrap">
+    <div class="trophy-title">― 討 伐 證 物 ―</div>
+    <div class="polaroid">
+      <div class="pol-photo">
+        <span class="seal-big">S</span>
+        <span class="add-photo">📷 放入照片</span>
+      </div>
+      <div class="pol-caption">
+        <div class="pol-shop">阿財虱目魚粥</div>
+        <div class="pol-meta">
+          <span class="pol-stars">★★★★★</span><br>
+          中西區 ・ 2026.06.15<br>
+          獵人 富毅・Lv.12
+        </div>
+      </div>
+    </div>
+    <div class="trophy-actions">
+      <a class="t-btn t-share">⟡ 分享戰績</a>
+      <a class="t-btn t-back" id="restart">回酒館</a>
+    </div>
+  </div>
+</div>
+
+<div class="demo-nav">示範:給星→完成討伐→看勝利儀式→戰績卡</div>
+
+<script>
+let rating = 0;
+const stars = document.querySelectorAll('.star');
+const submit = document.getElementById('submit');
+const lockNote = document.getElementById('lockNote');
+
+stars.forEach(s=>{
+  s.addEventListener('click',()=>{
+    rating = +s.dataset.v;
+    stars.forEach(x=> x.classList.toggle('on', +x.dataset.v <= rating));
+    submit.disabled = false;
+    lockNote.textContent = '';
+  });
+});
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+submit.addEventListener('click',()=>{
+  if(rating===0) return;
+  show('s2');
+  // 觸發勝利動畫
+  setTimeout(()=>document.getElementById('victory').classList.add('go'),50);
+});
+document.getElementById('toTrophy').addEventListener('click',()=>{
+  // 把評分帶進戰績卡
+  document.querySelector('.pol-stars').textContent = '★★★★★'.slice(0,rating).padEnd(rating,'★');
+  show('s3');
+});
+document.getElementById('restart').addEventListener('click',()=>{
+  rating=0; stars.forEach(x=>x.classList.remove('on'));
+  submit.disabled=true; lockNote.textContent='請先給予星數評價';
+  document.getElementById('victory').classList.remove('go');
+  show('s1');
+});
+</script>
+</body>
+</html>
