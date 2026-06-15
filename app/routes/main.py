@@ -351,6 +351,18 @@ def dex():
     total_exp = sum(h['exp_gained'] for h in hunts)
     level_info = get_level_info(total_exp)
 
+    from app.tainan_districts import DISTRICTS
+    earned_titles = [
+        (d, '制霸者' if district_counts[d] >= 25 else '地頭蛇')
+        for d in sorted(district_counts, key=lambda x: -district_counts[x])
+        if district_counts[d] >= 10
+    ]
+    district_progress = [
+        (d, district_counts[d])
+        for d in sorted(district_counts, key=lambda x: -district_counts[x])
+        if 0 < district_counts[d] < 25
+    ]
+
     return render_template('dex.html',
         grouped=grouped,
         district_counts=district_counts,
@@ -358,4 +370,13 @@ def dex():
         total_hunts=len(hunts),
         level_info=level_info,
         display_name=session['display_name'],
+        all_districts=list(DISTRICTS.keys()),
+        earned_titles=earned_titles,
+        district_progress=district_progress,
     )
+
+
+
+@bp.route('/ping')
+def ping():
+    return 'ok', 200
