@@ -95,6 +95,7 @@ def ensure_shops_fetched(center_lat: float, center_lng: float) -> None:
                 'includedTypes': ['restaurant', 'cafe', 'bakery', 'bar'],
                 'maxResultCount': 20,
                 'rankPreference': 'POPULARITY',
+                'languageCode': 'zh-TW',
                 'locationRestriction': {
                     'circle': {
                         'center': {'latitude': center_lat, 'longitude': center_lng},
