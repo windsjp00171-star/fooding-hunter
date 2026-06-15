@@ -92,7 +92,7 @@ def set_keeper():
     from flask import request as req, jsonify
     data = req.get_json(silent=True) or {}
     keeper_id = data.get('keeper_id', 'dad')
-    if keeper_id not in ('dad', 'hunk', 'lady'):
+    if keeper_id not in ('dad', 'hunk', 'lady', 'lady2'):
         return '', 400
     get_supabase().table('users').update({'keeper_id': keeper_id}).eq('id', session['user_id']).execute()
     session['keeper_id'] = keeper_id
@@ -331,7 +331,7 @@ def dex():
     sb = get_supabase()
 
     hunts = sb.table('hunts').select(
-        'shop_id, exp_gained, player_rating, completed_at, district'
+        'shop_id, exp_gained, player_rating, review_text, completed_at, district'
     ).eq('user_id', user_id).order('completed_at', desc=True).execute().data
 
     shop_ids = list({h['shop_id'] for h in hunts})
