@@ -50,8 +50,12 @@ def welcome():
 @login_required
 def tavern():
     import hashlib
+    from flask import jsonify
     user_id = session['user_id']
     sb = get_supabase()
+
+    user_row = sb.table('users').select('keeper_id').eq('id', user_id).maybe_single().execute().data
+    keeper_id = (user_row or {}).get('keeper_id') or 'dad'
 
     hunts = sb.table('hunts').select('exp_gained, district').eq('user_id', user_id).execute().data
     total_exp = sum(h['exp_gained'] for h in hunts)
@@ -78,7 +82,21 @@ def tavern():
         hunt_count=hunt_count,
         titles=titles,
         license_no=license_no,
+        keeper_id=keeper_id,
     )
+
+
+@bp.route('/keeper', methods=['POST'])
+@login_required
+def set_keeper():
+    from flask import request as req, jsonify
+    data = req.get_json(silent=True) or {}
+    keeper_id = data.get('keeper_id', 'dad')
+    if keeper_id not in ('dad', 'hunk', 'lady'):
+        return '', 400
+    get_supabase().table('users').update({'keeper_id': keeper_id}).eq('id', session['user_id']).execute()
+    session['keeper_id'] = keeper_id
+    return '', 204
 
 
 @bp.route('/board')
