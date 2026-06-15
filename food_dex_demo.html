@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>美食圖鑑・示範</title>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#15100b; --wood-1:#3a2817; --wood-2:#2c1d11; --wood-3:#241808;
+    --parch-hi:#f6ead0; --parch:#ecdcb4; --parch-lo:#dcc794;
+    --ink:#2b2012; --ink-soft:#7a6038;
+    --seal:#b5402e; --gold:#d9a441; --gold-deep:#9c7320;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Noto Sans TC',sans-serif;max-width:430px;margin:0 auto;
+    min-height:100vh;color:var(--parch);
+    background:
+      repeating-linear-gradient(90deg, transparent 0 70px, rgba(0,0,0,.4) 70px 72px, transparent 72px 74px),
+      repeating-linear-gradient(2deg, rgba(0,0,0,.05) 0 3px, transparent 3px 9px),
+      radial-gradient(120% 36% at 50% -4%, rgba(255,180,90,.12), transparent 60%),
+      linear-gradient(170deg,#2c1f13,#1d1308 60%,#160f08);
+    padding:18px 16px 40px}
+
+  .head h1{font-family:'DotGothic16';font-size:26px;color:#e9c987;letter-spacing:.08em;
+    text-shadow:0 1px 0 #000,0 2px 1px rgba(0,0,0,.6),0 0 18px rgba(217,164,65,.2)}
+  .head .sub{font-size:12px;color:#9a8259;margin-top:3px;letter-spacing:.05em}
+
+  /* 區段標題 */
+  .section-t{display:flex;align-items:center;gap:8px;margin:24px 2px 12px;
+    font-family:'DotGothic16';font-size:14px;color:var(--gold);letter-spacing:.06em}
+  .section-t::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(217,164,65,.4),transparent)}
+
+  /* ===== 1. 區域制霸地圖(格狀) ===== */
+  .territory{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}
+  .dist{position:relative;aspect-ratio:1;border-radius:5px;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;cursor:pointer;
+    border:1px solid rgba(0,0,0,.4);font-family:'DotGothic16';overflow:hidden;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+  .dist .dn{font-size:12px;z-index:2}
+  .dist .dc{font-size:9px;opacity:.8;margin-top:2px;z-index:2}
+  /* 制霸度:越高越金亮 */
+  .dist.lv0{background:linear-gradient(160deg,#2a2018,#1d1610);color:#6b5d48}
+  .dist.lv1{background:linear-gradient(160deg,#43321c,#2e2113);color:#c9a866}
+  .dist.lv2{background:linear-gradient(160deg,#6a4a1e,#473012);color:#f0d79a}
+  .dist.lv3{background:linear-gradient(160deg,#9c7320,#6a4a1e);color:#fff2cc;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 0 12px rgba(217,164,65,.35)}
+  .dist.lv3::after{content:"♛";position:absolute;top:3px;right:4px;font-size:10px;color:#ffe6a8;z-index:2}
+  .dist .conquer{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--gold)}
+
+  /* ===== 2+3. 店家收藏卡牆(已獵卡 + 灰剪影) ===== */
+  .region-pick{font-size:11px;color:#9a8259;margin:0 2px 10px;font-family:'DotGothic16'}
+  .region-pick b{color:var(--gold)}
+  .card-wall{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+
+  .food-card{position:relative;border-radius:6px;padding:11px 12px 10px;min-height:96px;
+    display:flex;flex-direction:column;
+    background:linear-gradient(160deg,var(--parch-hi),var(--parch) 55%,var(--parch-lo));color:var(--ink);
+    box-shadow:0 4px 10px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.4);
+    clip-path:polygon(0 2%,98% 0,100% 97%,2% 100%)}
+  /* S 級金框 */
+  .food-card.S{box-shadow:0 4px 12px rgba(0,0,0,.5),inset 0 0 0 2px rgba(217,164,65,.7),0 0 10px rgba(217,164,65,.25)}
+  .fc-seal{position:absolute;top:8px;right:9px;width:24px;height:24px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-family:'DotGothic16';font-size:12px;color:#fff5e8;
+    transform:rotate(-8deg);box-shadow:0 2px 3px rgba(0,0,0,.3),inset 0 1px 2px rgba(255,255,255,.25)}
+  .fc-seal.S{background:radial-gradient(circle at 38% 32%,#f0d68a,#d9a441 55%,#9c7320)}
+  .fc-seal.A{background:radial-gradient(circle at 38% 32%,#d36c52,#b5402e 55%,#7e2417)}
+  .fc-seal.B{background:radial-gradient(circle at 38% 32%,#6f93c4,#4a6fa5 55%,#344f78)}
+  .fc-seal.C{background:radial-gradient(circle at 38% 32%,#9a9a8e,#6f6f64 55%,#4a4a40)}
+  .fc-name{font-family:'DotGothic16';font-size:14px;color:#2b2012;line-height:1.25;padding-right:26px;margin-bottom:5px}
+  .fc-stars{font-size:11px;color:#c8800a;margin-bottom:auto}
+  .fc-date{font-size:10px;color:var(--ink-soft);margin-top:6px}
+
+  /* 灰剪影未獵卡 */
+  .food-card.locked{background:linear-gradient(160deg,#2a2119,#211a13);color:#5a4d3a;
+    box-shadow:inset 0 0 0 1px rgba(120,100,70,.2),inset 0 2px 14px rgba(0,0,0,.4);
+    align-items:center;justify-content:center;text-align:center}
+  .food-card.locked .q{font-family:'DotGothic16';font-size:30px;color:#3e3326;margin-bottom:4px}
+  .food-card.locked .hint{font-size:10px;color:#6b5d48;line-height:1.4}
+
+  .lock-summary{text-align:center;margin:14px 2px 0;font-size:12px;color:#9a8259;font-family:'DotGothic16'}
+  .lock-summary b{color:var(--gold)}
+
+  /* ===== 4. 稱號陳列櫃 ===== */
+  .titles-case{display:flex;flex-wrap:wrap;gap:8px;margin:0 2px}
+  .medal{display:flex;align-items:center;gap:6px;border-radius:20px;padding:6px 12px;
+    background:rgba(224,176,74,.12);border:1px solid rgba(224,176,74,.4);
+    font-size:12px;color:#f0d79a;font-family:'Noto Sans TC'}
+  .medal .ic{font-size:13px}
+  /* 進度中的稱號 */
+  .title-progress{margin:12px 2px 0;background:rgba(58,40,23,.5);border:1px solid rgba(224,176,74,.25);
+    border-radius:8px;padding:11px 13px}
+  .tp-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px}
+  .tp-row .goal{color:var(--gold)}
+  .tp-track{height:7px;border-radius:4px;background:rgba(0,0,0,.4);overflow:hidden}
+  .tp-fill{height:100%;width:70%;border-radius:4px;background:linear-gradient(90deg,var(--gold-deep),var(--gold));
+    box-shadow:0 0 8px rgba(217,164,65,.4)}
+  .tp-hint{font-size:11px;color:#c9a866;margin-top:7px}
+
+  .back{display:block;text-align:center;margin-top:26px;color:#b89a64;font-size:13px;
+    font-family:'DotGothic16';letter-spacing:.08em;text-decoration:none}
+  .demo-note{font-size:11px;color:#8a7250;font-family:'DotGothic16';margin:4px 2px 0;opacity:.7}
+</style>
+</head>
+<body>
+  <div class="head">
+    <h1>美食圖鑑</h1>
+    <div class="sub">獵人富毅的征服紀錄 ・ 已討伐 38 間</div>
+  </div>
+  <p class="demo-note">▼ 圖鑑四層次示範:制霸地圖 / 收藏卡 / 灰剪影 / 稱號櫃</p>
+
+  <!-- 1. 區域制霸地圖 -->
+  <div class="section-t">台 南 制 霸 圖</div>
+  <div class="territory">
+    <div class="dist lv3"><span class="dn">安南</span><span class="dc">25間</span></div>
+    <div class="dist lv2"><span class="dn">中西</span><span class="dc">11間</span></div>
+    <div class="dist lv1"><span class="dn">北區</span><span class="dc">4間</span></div>
+    <div class="dist lv1"><span class="dn">東區</span><span class="dc">3間</span></div>
+    <div class="dist lv2"><span class="dn">安平</span><span class="dc">8間</span></div>
+    <div class="dist lv1"><span class="dn">永康</span><span class="dc">2間</span></div>
+    <div class="dist lv0"><span class="dn">南區</span><span class="dc">—</span></div>
+    <div class="dist lv0"><span class="dn">仁德</span><span class="dc">—</span></div>
+    <div class="dist lv0"><span class="dn">歸仁</span><span class="dc">—</span></div>
+    <div class="dist lv0"><span class="dn">新化</span><span class="dc">—</span></div>
+    <div class="dist lv0"><span class="dn">善化</span><span class="dc">—</span></div>
+    <div class="dist lv0"><span class="dn">…</span><span class="dc">+27</span></div>
+  </div>
+
+  <!-- 2+3. 收藏卡牆(以安南區為例) -->
+  <div class="section-t">安 南 區 ・ 戰 績 牆</div>
+  <p class="region-pick">已討伐 <b>25</b> 間 ・ 發現未征服 <b>12</b> 間</p>
+  <div class="card-wall">
+    <!-- 已獵卡 -->
+    <div class="food-card S">
+      <span class="fc-seal S">S</span>
+      <div class="fc-name">阿財虱目魚粥</div>
+      <div class="fc-stars">★★★★★</div>
+      <div class="fc-date">⚔ 2026.05.20 討伐</div>
+    </div>
+    <div class="food-card">
+      <span class="fc-seal B">B</span>
+      <div class="fc-name">赤崁棺材板</div>
+      <div class="fc-stars">★★★★☆</div>
+      <div class="fc-date">⚔ 2026.05.18 討伐</div>
+    </div>
+    <div class="food-card">
+      <span class="fc-seal A">A</span>
+      <div class="fc-name">大芳烤鴨</div>
+      <div class="fc-stars">★★★★★</div>
+      <div class="fc-date">⚔ 2026.05.11 討伐</div>
+    </div>
+    <!-- 灰剪影未獵卡 -->
+    <div class="food-card locked">
+      <div class="q">？</div>
+      <div class="hint">尚未討伐<br>北安路某處</div>
+    </div>
+    <div class="food-card locked">
+      <div class="q">？</div>
+      <div class="hint">尚未討伐<br>海佃路某處</div>
+    </div>
+    <div class="food-card locked">
+      <div class="q">？</div>
+      <div class="hint">尚未討伐</div>
+    </div>
+  </div>
+  <p class="lock-summary">…還有 <b>9</b> 間已發現的店家等你討伐 ⚔</p>
+
+  <!-- 4. 稱號陳列櫃 -->
+  <div class="section-t">稱 號 陳 列 櫃</div>
+  <div class="titles-case">
+    <span class="medal"><span class="ic">♛</span>安南區・制霸者</span>
+    <span class="medal"><span class="ic">⚔</span>中西區・地頭蛇</span>
+    <span class="medal"><span class="ic">⟡</span>隱店獵手 ×4</span>
+  </div>
+  <div class="title-progress">
+    <div class="tp-row"><span>中西區・制霸者</span><span class="goal">18 / 25</span></div>
+    <div class="tp-track"><div class="tp-fill" style="width:72%"></div></div>
+    <div class="tp-hint">再討伐 7 間,即可拿下中西區制霸者稱號 ⚔</div>
+  </div>
+
+  <a class="back" href="#">← 回酒館</a>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>實體告示板・示範</title>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#15100b; --wood-1:#3a2817; --wood-2:#2c1d11; --wood-3:#1d1308;
+    --board-1:#5a3d22; --board-2:#46301b; --board-3:#382615;
+    --frame-1:#6b4926; --frame-2:#4a3119; --frame-edge:#241608;
+    --parch-hi:#f6ead0; --parch:#ecdcb4; --parch-lo:#dcc794;
+    --ink:#2b2012; --ink-soft:#7a6038;
+    --seal:#b5402e; --gold:#d9a441; --gold-deep:#9c7320;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Noto Sans TC',sans-serif; max-width:430px; margin:0 auto;
+    min-height:100vh; color:var(--parch);
+    /* 後牆：深木牆，刻意做暗，讓告示板跳出來 */
+    background:
+      repeating-linear-gradient(90deg, transparent 0 60px, rgba(0,0,0,.5) 60px 63px, rgba(255,220,160,.03) 63px 65px, transparent 65px 68px),
+      repeating-linear-gradient(1deg, rgba(0,0,0,.06) 0 4px, transparent 4px 11px),
+      radial-gradient(130% 40% at 50% -5%, rgba(255,180,90,.12), transparent 60%),
+      linear-gradient(170deg, #2c1f13, #1d1308 60%, #160f08);
+    padding:18px 14px 36px;
+  }
+
+  .page-head{margin:6px 4px 16px}
+  .page-head h1{font-family:'DotGothic16';font-size:26px;color:#e9c987;letter-spacing:.08em;
+    text-shadow:0 1px 0 #000,0 2px 1px rgba(0,0,0,.6),0 0 18px rgba(217,164,65,.2)}
+  .page-head .mode{display:inline-flex;align-items:center;gap:6px;margin-top:3px;font-size:12px;color:#c9a866;font-family:'DotGothic16'}
+  .page-head .mode .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold)}
+
+  /* ============================================================
+     實體木頭告示板：厚木框 + 鉚釘 + 內凹板面 + 浮牆投影
+     ============================================================ */
+  .notice-board{
+    position:relative;
+    margin:0 2px;
+    padding:26px 18px 24px;
+    border-radius:10px;
+    /* 厚木框：用 border + 漸層做出立體木邊 */
+    background:
+      /* 板面木紋（直紋木板拼接） */
+      repeating-linear-gradient(90deg,
+        rgba(0,0,0,.16) 0 1px, transparent 1px 4px,
+        rgba(255,220,160,.03) 4px 5px, transparent 5px 56px),
+      repeating-linear-gradient(88deg, rgba(0,0,0,.05) 0 3px, transparent 3px 10px),
+      linear-gradient(160deg, var(--board-1), var(--board-2) 55%, var(--board-3));
+    border:12px solid transparent;
+    border-image:linear-gradient(150deg, #7a5430, #4a3119 45%, #5a3d22 70%, #2e1d0e) 1;
+    box-shadow:
+      /* 板子浮在牆上的投影 */
+      0 16px 36px rgba(0,0,0,.6),
+      0 6px 12px rgba(0,0,0,.5),
+      /* 板面內凹陰影 */
+      inset 0 2px 10px rgba(0,0,0,.5),
+      inset 0 0 60px rgba(0,0,0,.3),
+      /* 木框高光 */
+      inset 0 1px 0 rgba(255,220,160,.12);
+  }
+  /* 木框外再描一圈深邊,強化厚度 */
+  .notice-board::before{
+    content:""; position:absolute; inset:-12px; border-radius:12px; pointer-events:none;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.6), 0 0 0 1px rgba(0,0,0,.4);
+  }
+  /* 四角鉚釘 */
+  .rivet{position:absolute;width:18px;height:18px;border-radius:50%;z-index:5;
+    background:
+      radial-gradient(circle at 36% 30%, #f0e8d6 0 14%, transparent 15%),
+      radial-gradient(circle at 50% 55%, #9a8f7e, #4a443a 55%, #1a1610);
+    box-shadow:0 2px 5px rgba(0,0,0,.7), inset 0 -2px 3px rgba(0,0,0,.6);
+  }
+  .rivet.tl{top:-4px;left:-4px} .rivet.tr{top:-4px;right:-4px}
+  .rivet.bl{bottom:-4px;left:-4px} .rivet.br{bottom:-4px;right:-4px}
+
+  /* 板頂烙印小標 */
+  .board-brand{text-align:center;font-family:'DotGothic16';font-size:11px;letter-spacing:.35em;
+    color:#caa164;margin-bottom:20px;text-indent:.35em;
+    text-shadow:0 1px 0 rgba(0,0,0,.6)}
+  .board-brand::before,.board-brand::after{content:"◆";margin:0 8px;color:#8a6432;font-size:8px;vertical-align:middle}
+
+  /* ── 懸賞令（釘在板面上）── */
+  .bounty{
+    position:relative;margin:0 2px 24px;padding:20px 18px 16px;border-radius:2px;color:var(--ink);
+    background:
+      radial-gradient(circle at 18% 12%, rgba(255,255,255,.5), transparent 40%),
+      radial-gradient(ellipse 60px 40px at 85% 88%, rgba(150,110,60,.18), transparent 70%),
+      repeating-linear-gradient(58deg, rgba(160,120,70,.04) 0 2px, transparent 2px 5px),
+      linear-gradient(160deg, var(--parch-hi), var(--parch) 55%, var(--parch-lo));
+    box-shadow:0 1px 0 rgba(255,255,255,.4) inset, 0 8px 16px rgba(0,0,0,.5), 0 2px 4px rgba(0,0,0,.4);
+    clip-path:polygon(0 1%, 99% 0, 100% 98%, 1% 100%);
+  }
+  .bounty:last-child{margin-bottom:0}
+  .bounty:nth-child(odd){transform:rotate(-1.1deg)}
+  .bounty:nth-child(even){transform:rotate(.8deg)}
+
+  .nail{position:absolute;top:7px;width:15px;height:15px;border-radius:50%;z-index:3;
+    background:radial-gradient(circle at 36% 30%, #e8e2d4 0 16%, transparent 17%),radial-gradient(circle at 50% 50%, #8a8073, #45403a 60%, #1d1a16);
+    box-shadow:0 2px 4px rgba(0,0,0,.6), inset 0 -1px 2px rgba(0,0,0,.5)}
+  .nail.l{left:13px;transform:rotate(-8deg)} .nail.r{right:13px;transform:rotate(6deg)}
+
+  .seal{position:absolute;top:13px;right:15px;width:46px;height:46px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;z-index:4;
+    font-family:'DotGothic16';font-size:22px;color:#fff5e8;transform:rotate(-10deg);
+    box-shadow:0 3px 6px rgba(0,0,0,.4), inset 0 2px 4px rgba(255,255,255,.25), inset 0 -3px 6px rgba(0,0,0,.35);
+    clip-path:polygon(50% 0,63% 8%,78% 4%,84% 18%,97% 26%,92% 42%,100% 54%,90% 66%,93% 82%,77% 84%,67% 96%,52% 89%,37% 97%,28% 84%,12% 85%,16% 68%,4% 56%,12% 43%,5% 27%,20% 22%,25% 7%,40% 11%);
+    text-shadow:0 1px 2px rgba(0,0,0,.5)}
+  .seal.S{background:radial-gradient(circle at 38% 32%, #f0d68a, #d9a441 55%, #9c7320)}
+  .seal.B{background:radial-gradient(circle at 38% 32%, #6f93c4, #4a6fa5 55%, #344f78)}
+
+  .b-type{font-family:'DotGothic16';font-size:11px;letter-spacing:.12em;color:var(--seal);
+    border:1px solid var(--seal);display:inline-block;padding:1px 8px;border-radius:2px;background:rgba(181,64,46,.06)}
+  .b-quest{font-family:'DotGothic16';font-size:19px;line-height:1.3;margin:7px 0 1px;color:#7a2418}
+  .b-shop{font-size:12px;color:var(--ink-soft);margin-bottom:7px}
+  .b-shop::before{content:"⚑ "}
+  .b-flavor{font-size:11.5px;line-height:1.65;color:#5a4530;font-style:italic;
+    border-left:2px solid rgba(181,64,46,.3);padding-left:9px;margin-bottom:11px}
+  .b-loc{font-size:12px;color:var(--ink-soft);margin-bottom:11px}
+  .b-divider{height:1px;background:repeating-linear-gradient(90deg,#b59a64 0 5px,transparent 5px 9px);margin:0 0 11px}
+  .b-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+  .b-reward .lbl{font-size:10px;color:var(--ink-soft);letter-spacing:.15em}
+  .b-reward .val{font-family:'DotGothic16';font-size:17px;color:#7a3a12;margin-top:2px}
+  .accept-btn{font-family:'DotGothic16';font-size:14px;color:#f6ead0;cursor:pointer;border:none;
+    padding:10px 18px;border-radius:3px;white-space:nowrap;text-decoration:none;
+    background:linear-gradient(180deg,#b5402e,#8a2c1c);
+    box-shadow:0 3px 0 #5e1c11, 0 5px 10px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.2)}
+
+  .compare{font-size:11px;color:#8a7250;font-family:'DotGothic16';margin:0 4px 12px;opacity:.7}
+</style>
+</head>
+<body>
+  <div class="page-head">
+    <h1>懸賞板</h1>
+    <span class="mode"><span class="dot"></span>開拓此地</span>
+  </div>
+  <p class="compare">▼ 懸賞令現在釘在一塊「實體木頭告示板」上(厚框＋鉚釘＋浮牆陰影)</p>
+
+  <!-- 實體告示板 -->
+  <div class="notice-board">
+    <span class="rivet tl"></span><span class="rivet tr"></span>
+    <span class="rivet bl"></span><span class="rivet br"></span>
+
+    <div class="board-brand">獵 人 公 會 ・ 委 託</div>
+
+    <!-- S 級 -->
+    <article class="bounty">
+      <span class="nail l"></span><span class="nail r"></span>
+      <span class="seal S">S</span>
+      <span class="b-type">沸騰魔王</span>
+      <h2 class="b-quest">討伐：安南區的沸騰魔王</h2>
+      <div class="b-shop">五鮮級鍋物專賣・安南北安店</div>
+      <p class="b-flavor">【傳說級懸賞】此乃公會認證的頂級獵物。一鍋之中暗藏山珍海味,是團體討伐的絕佳副本。</p>
+      <div class="b-loc">📍 安南區</div>
+      <div class="b-divider"></div>
+      <div class="b-foot">
+        <div class="b-reward"><div class="lbl">REWARD</div><div class="val">賞金 50 EXP</div></div>
+        <a class="accept-btn">接令 →</a>
+      </div>
+    </article>
+
+    <!-- B 級 -->
+    <article class="bounty">
+      <span class="nail l"></span><span class="nail r"></span>
+      <span class="seal B">B</span>
+      <span class="b-type">在地強者</span>
+      <h2 class="b-quest">討伐:安南區的在地強者</h2>
+      <div class="b-shop">摩斯漢堡・台南北安店</div>
+      <p class="b-flavor">【一般委託】穩紮穩打的日常獵物,適合磨練手感。尚無冒險者留下完整紀錄。</p>
+      <div class="b-loc">📍 安南區</div>
+      <div class="b-divider"></div>
+      <div class="b-foot">
+        <div class="b-reward"><div class="lbl">REWARD</div><div class="val">賞金 30 EXP</div></div>
+        <a class="accept-btn">接令 →</a>
+      </div>
+    </article>
+  </div>
+</body>
+</html>

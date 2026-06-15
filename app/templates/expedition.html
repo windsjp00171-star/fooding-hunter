@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block title %}遠征規劃 — 美食獵人執照{% endblock %}
+{% block head %}
+<style>
+:root{
+  --night:#15100b; --wood:#3a2817;
+  --parch-hi:#f6ead0; --parch:#ecdcb4; --parch-lo:#dcc794;
+  --ink:#2b2012; --ink-soft:#7a6038;
+  --seal:#b5402e; --gold:#d9a441; --gold-deep:#9c7320;
+}
+body{
+  background:
+    radial-gradient(120% 36% at 50% -4%, rgba(255,180,90,.14), transparent 60%),
+    linear-gradient(170deg,#3a2817,#2c1d11 55%,#241808);
+  min-height:100dvh;
+}
+.wrap{ padding:22px 18px 48px; }
+
+.page-back{
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:'DotGothic16'; font-size:12px; color:#c9a866; text-decoration:none;
+  margin-bottom:18px; opacity:.8;
+}
+
+/* 羊皮紙地圖卷軸 */
+.scroll{
+  position:relative; border-radius:2px; padding:22px 18px 20px;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 15% 8%, rgba(255,255,255,.5), transparent 38%),
+    radial-gradient(ellipse 80px 60px at 90% 92%, rgba(150,110,60,.2), transparent 70%),
+    repeating-linear-gradient(58deg, rgba(160,120,70,.04) 0 2px, transparent 2px 5px),
+    linear-gradient(160deg, var(--parch-hi), var(--parch) 55%, var(--parch-lo));
+  box-shadow:0 1px 0 rgba(255,255,255,.45) inset, 0 12px 24px rgba(0,0,0,.5);
+  clip-path:polygon(0 0.5%, 99.5% 0, 100% 99.5%, 0.5% 100%);
+}
+.scroll::after{
+  content:''; position:absolute; inset:0; border-radius:2px; pointer-events:none;
+  box-shadow:inset 0 0 0 1px rgba(120,90,50,.22), inset 0 0 40px rgba(140,100,55,.1);
+}
+
+.scroll-title{
+  font-family:'DotGothic16'; font-size:18px; letter-spacing:.12em; color:#7a2418;
+  margin-bottom:4px; text-shadow:0 1px 0 rgba(255,255,255,.3);
+}
+.scroll-sub{ font-size:12px; color:var(--ink-soft); margin-bottom:18px; line-height:1.6; }
+
+/* 城區分隔 */
+.region-label{
+  font-family:'DotGothic16'; font-size:10px; letter-spacing:.3em; color:var(--ink-soft);
+  border-bottom:1px dashed rgba(120,90,50,.4); padding-bottom:5px; margin:16px 0 10px;
+  text-indent:.3em;
+}
+
+/* 行政區格子 */
+.district-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+.district-btn{
+  position:relative; display:block; text-align:center; text-decoration:none;
+  padding:12px 6px 10px; border-radius:3px; color:var(--ink);
+  background:
+    repeating-linear-gradient(58deg, rgba(160,120,70,.04) 0 2px, transparent 2px 5px),
+    linear-gradient(160deg, var(--parch-hi), var(--parch));
+  border:1px solid rgba(120,90,50,.3);
+  box-shadow:0 3px 6px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.5);
+  clip-path:polygon(0 2%, 97% 0, 100% 98%, 3% 100%);
+  transition:transform .08s, box-shadow .08s;
+}
+.district-btn:active{ transform:scale(.96); }
+.district-btn.hunted{ border-color:rgba(181,64,46,.4); }
+.district-name{ font-family:'DotGothic16'; font-size:13px; color:#4a2c10; letter-spacing:.04em; }
+.district-count{
+  display:block; font-size:10px; color:var(--ink-soft); margin-top:3px; letter-spacing:.05em;
+}
+.district-count.has-count{ color:var(--seal); font-weight:700; }
+
+/* 制霸角標 */
+.champ-badge{
+  position:absolute; top:-4px; right:-4px;
+  font-size:9px; padding:1px 5px; border-radius:2px;
+  background:var(--gold); color:#3a2010; font-weight:700;
+  box-shadow:0 1px 3px rgba(0,0,0,.3);
+}
+
+.note{ font-size:11px; color:var(--ink-soft); margin-top:16px; line-height:1.6; text-align:center; font-style:italic; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <a href="/" class="page-back">← 回酒館</a>
+
+  <div class="scroll">
+    <div class="scroll-title">🗺 遠征規劃</div>
+    <p class="scroll-sub">選擇目標行政區，公會將為你抽取當地的討伐懸賞。<br>遠征範圍半徑 2.5 公里，適合週末深度狩獵。</p>
+
+    <div class="region-label">◆ 台南市區</div>
+    <div class="district-grid">
+      {%- set city = ['中西區','東區','南區','北區','安平區','安南區'] -%}
+      {% for d in districts if d in city %}
+        {%- set cnt = district_counts.get(d, 0) -%}
+        <a href="/board?mode=expedition&district={{ d }}" class="district-btn{% if cnt > 0 %} hunted{% endif %}">
+          {% if cnt >= 25 %}<span class="champ-badge">制霸</span>{% elif cnt >= 10 %}<span class="champ-badge" style="background:#9a8e5a">蛇</span>{% endif %}
+          <span class="district-name">{{ d }}</span>
+          <span class="district-count{% if cnt > 0 %} has-count{% endif %}">
+            {% if cnt > 0 %}{{ cnt }} 討伐{% else %}未踏足{% endif %}
+          </span>
+        </a>
+      {% endfor %}
+    </div>
+
+    <div class="region-label">◆ 永康・新化・仁德帶</div>
+    <div class="district-grid">
+      {%- set zone2 = ['永康區','歸仁區','新化區','仁德區','關廟區','龍崎區','左鎮區','新市區','山上區','大內區','善化區','安定區'] -%}
+      {% for d in districts if d in zone2 %}
+        {%- set cnt = district_counts.get(d, 0) -%}
+        <a href="/board?mode=expedition&district={{ d }}" class="district-btn{% if cnt > 0 %} hunted{% endif %}">
+          {% if cnt >= 25 %}<span class="champ-badge">制霸</span>{% elif cnt >= 10 %}<span class="champ-badge" style="background:#9a8e5a">蛇</span>{% endif %}
+          <span class="district-name">{{ d }}</span>
+          <span class="district-count{% if cnt > 0 %} has-count{% endif %}">
+            {% if cnt > 0 %}{{ cnt }} 討伐{% else %}未踏足{% endif %}
+          </span>
+        </a>
+      {% endfor %}
+    </div>
+
+    <div class="region-label">◆ 北部</div>
+    <div class="district-grid">
+      {%- set zone3 = ['官田區','麻豆區','佳里區','西港區','七股區','將軍區','學甲區','北門區','玉井區','楠西區','南化區','六甲區','下營區','柳營區','鹽水區','新營區','後壁區','白河區','東山區'] -%}
+      {% for d in districts if d in zone3 %}
+        {%- set cnt = district_counts.get(d, 0) -%}
+        <a href="/board?mode=expedition&district={{ d }}" class="district-btn{% if cnt > 0 %} hunted{% endif %}">
+          {% if cnt >= 25 %}<span class="champ-badge">制霸</span>{% elif cnt >= 10 %}<span class="champ-badge" style="background:#9a8e5a">蛇</span>{% endif %}
+          <span class="district-name">{{ d }}</span>
+          <span class="district-count{% if cnt > 0 %} has-count{% endif %}">
+            {% if cnt > 0 %}{{ cnt }} 討伐{% else %}未踏足{% endif %}
+          </span>
+        </a>
+      {% endfor %}
+    </div>
+
+    <p class="note">點擊行政區進入懸賞板 · 遠征資料由公會資料庫即時抽取</p>
+  </div>
+</div>
+{% endblock %}

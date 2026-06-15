@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>懸賞板・文案＋動畫示範</title>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --night:#15100b; --wood-1:#3a2817; --wood-2:#2c1d11; --wood-3:#241808;
+    --parch-hi:#f6ead0; --parch:#ecdcb4; --parch-lo:#dcc794;
+    --ink:#2b2012; --ink-soft:#7a6038;
+    --seal:#b5402e; --gold:#d9a441; --gold-deep:#9c7320;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Noto Sans TC',sans-serif; max-width:430px; margin:0 auto;
+    min-height:100vh; color:var(--parch);
+    background:
+      repeating-linear-gradient(90deg, transparent 0 86px, rgba(0,0,0,.45) 86px 88px, rgba(255,220,160,.04) 88px 90px, transparent 90px 92px),
+      repeating-linear-gradient(2deg, rgba(0,0,0,.05) 0 3px, transparent 3px 9px),
+      radial-gradient(ellipse 40px 16px at 22% 14%, rgba(0,0,0,.3), transparent 70%),
+      radial-gradient(120% 36% at 50% -4%, rgba(255,180,90,.14), transparent 60%),
+      linear-gradient(170deg, var(--wood-1), var(--wood-2) 55%, var(--wood-3));
+    padding:22px 18px 40px;
+  }
+  .sign h1{font-family:'DotGothic16';font-size:30px;color:#e9c987;letter-spacing:.08em;
+    text-shadow:0 1px 0 #000,0 2px 1px rgba(0,0,0,.6),0 0 18px rgba(217,164,65,.2)}
+  .sign .mode{display:inline-flex;align-items:center;gap:6px;margin-top:4px;font-size:13px;color:#c9a866;font-family:'DotGothic16'}
+  .sign .mode .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 8px var(--gold);
+    animation:pulse 2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+  .date{font-size:12px;color:#9a8259;opacity:.8;margin:8px 0 20px}
+
+  /* 懸賞令 */
+  .bounty{
+    position:relative;margin:0 4px 30px;padding:22px 20px 18px;border-radius:2px;color:var(--ink);
+    background:
+      radial-gradient(circle at 18% 12%, rgba(255,255,255,.5), transparent 40%),
+      radial-gradient(ellipse 60px 40px at 85% 88%, rgba(150,110,60,.18), transparent 70%),
+      repeating-linear-gradient(58deg, rgba(160,120,70,.04) 0 2px, transparent 2px 5px),
+      linear-gradient(160deg, var(--parch-hi), var(--parch) 55%, var(--parch-lo));
+    box-shadow:0 1px 0 rgba(255,255,255,.4) inset, 0 10px 18px rgba(0,0,0,.45);
+    clip-path:polygon(0 1%, 99% 0, 100% 98%, 1% 100%);
+    /* 入場動畫：從上方釘落 */
+    opacity:0; transform:translateY(-30px) rotate(0deg);
+    animation:pin-drop .6s cubic-bezier(.34,1.3,.5,1) forwards;
+  }
+  .bounty:nth-child(odd){--rest:-1.2deg}
+  .bounty:nth-child(even){--rest:.9deg}
+  @keyframes pin-drop{
+    0%{opacity:0;transform:translateY(-36px) rotate(0deg)}
+    60%{opacity:1;transform:translateY(4px) rotate(var(--rest))}
+    80%{transform:translateY(-2px) rotate(var(--rest))}
+    100%{opacity:1;transform:translateY(0) rotate(var(--rest))}
+  }
+  .bounty.b1{animation-delay:.1s}
+  .bounty.b2{animation-delay:.35s}
+  .bounty.b3{animation-delay:.6s}
+
+  .nail{position:absolute;top:8px;width:16px;height:16px;border-radius:50%;z-index:3;
+    background:radial-gradient(circle at 36% 30%, #e8e2d4 0 16%, transparent 17%),radial-gradient(circle at 50% 50%, #8a8073, #45403a 60%, #1d1a16);
+    box-shadow:0 2px 4px rgba(0,0,0,.6), inset 0 -1px 2px rgba(0,0,0,.5)}
+  .nail.l{left:14px;transform:rotate(-8deg)} .nail.r{right:14px;transform:rotate(6deg)}
+
+  .seal{position:absolute;top:14px;right:16px;width:50px;height:50px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;z-index:4;
+    font-family:'DotGothic16';font-size:24px;color:#fff5e8;transform:rotate(-10deg);
+    box-shadow:0 3px 6px rgba(0,0,0,.4), inset 0 2px 4px rgba(255,255,255,.25), inset 0 -3px 6px rgba(0,0,0,.35);
+    clip-path:polygon(50% 0,63% 8%,78% 4%,84% 18%,97% 26%,92% 42%,100% 54%,90% 66%,93% 82%,77% 84%,67% 96%,52% 89%,37% 97%,28% 84%,12% 85%,16% 68%,4% 56%,12% 43%,5% 27%,20% 22%,25% 7%,40% 11%);
+    text-shadow:0 1px 2px rgba(0,0,0,.5)}
+  .seal.S{background:radial-gradient(circle at 38% 32%, #f0d68a, #d9a441 55%, #9c7320);
+    animation:seal-glow 2.5s ease-in-out infinite}
+  @keyframes seal-glow{0%,100%{box-shadow:0 3px 6px rgba(0,0,0,.4),inset 0 2px 4px rgba(255,255,255,.25),inset 0 -3px 6px rgba(0,0,0,.35),0 0 0 rgba(217,164,65,0)}
+    50%{box-shadow:0 3px 6px rgba(0,0,0,.4),inset 0 2px 4px rgba(255,255,255,.25),inset 0 -3px 6px rgba(0,0,0,.35),0 0 16px rgba(217,164,65,.6)}}
+  .seal.B{background:radial-gradient(circle at 38% 32%, #6f93c4, #4a6fa5 55%, #344f78)}
+
+  .b-type{font-family:'DotGothic16';font-size:11px;letter-spacing:.12em;color:var(--seal);
+    border:1px solid var(--seal);display:inline-block;padding:1px 8px;border-radius:2px;background:rgba(181,64,46,.06)}
+  /* 委託標題（新）— RPG 敘事 */
+  .b-quest{font-family:'DotGothic16';font-size:20px;line-height:1.3;margin:8px 0 1px;color:#7a2418;
+    text-shadow:0 1px 0 rgba(255,255,255,.3)}
+  /* 店名（小，附屬） */
+  .b-shop{font-size:12.5px;color:var(--ink-soft);margin-bottom:8px}
+  .b-shop::before{content:"⚑ "}
+  /* 風味敘述（新） */
+  .b-flavor{font-size:12px;line-height:1.7;color:#5a4530;font-style:italic;
+    border-left:2px solid rgba(181,64,46,.3);padding-left:9px;margin-bottom:12px}
+  .b-loc{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-soft);margin-bottom:12px;flex-wrap:wrap}
+  .tag-unknown{background:#d8c294;color:#6a4f25;font-size:11px;padding:2px 7px;border-radius:2px;border:1px dashed #a8884e}
+
+  .b-divider{height:1px;background:repeating-linear-gradient(90deg,#b59a64 0 5px,transparent 5px 9px);margin:0 0 12px}
+  .b-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+  .b-reward .lbl{font-size:10px;color:var(--ink-soft);letter-spacing:.15em}
+  .b-reward .val{font-family:'DotGothic16';font-size:18px;color:#7a3a12;display:flex;align-items:center;gap:8px;margin-top:2px;flex-wrap:wrap}
+  /* S 級賞金金光呼吸 */
+  .b-reward.hi .val{color:#9c6b00;animation:reward-shine 2s ease-in-out infinite}
+  @keyframes reward-shine{0%,100%{text-shadow:0 0 0 rgba(217,164,65,0)}50%{text-shadow:0 0 10px rgba(217,164,65,.7)}}
+  .gem-pill{font-size:11px;background:linear-gradient(180deg,#f0d68a,#d9a441);color:#5a3a0a;
+    padding:2px 8px;border-radius:3px;font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.3);
+    transform:rotate(-3deg);border:1px solid #b8882a;animation:gem-wobble 3s ease-in-out infinite}
+  @keyframes gem-wobble{0%,100%{transform:rotate(-3deg) scale(1)}50%{transform:rotate(2deg) scale(1.05)}}
+
+  .accept-btn{font-family:'DotGothic16';font-size:15px;color:#f6ead0;cursor:pointer;border:none;
+    padding:11px 20px;border-radius:3px;white-space:nowrap;text-decoration:none;
+    background:linear-gradient(180deg,#b5402e,#8a2c1c);
+    box-shadow:0 3px 0 #5e1c11, 0 5px 10px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.2);
+    transition:transform .06s, box-shadow .06s;position:relative;overflow:hidden}
+  .accept-btn:active{transform:translateY(3px);box-shadow:0 0 0 #5e1c11, 0 2px 6px rgba(0,0,0,.35)}
+  .accept-btn::after{content:"";position:absolute;top:0;left:-100%;width:60%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent)}
+  .accept-btn:hover::after{animation:btn-sweep .6s ease}
+  @keyframes btn-sweep{to{left:120%}}
+
+  .note{font-size:11px;color:#8a7250;font-family:'DotGothic16';margin-bottom:16px;opacity:.7}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+  <div class="sign"><h1>懸賞板</h1>
+    <span class="mode"><span class="dot"></span>開拓此地</span>
+  </div>
+  <p class="date">── 2026 年 6 月 15 日（日）的討伐名單 ──</p>
+  <p class="note">▼ 文案 RPG 化 ＋ 入場/微互動動畫 示範</p>
+
+  <!-- B 級 -->
+  <article class="bounty b1">
+    <span class="nail l"></span><span class="nail r"></span>
+    <span class="seal B">B</span>
+    <span class="b-type">咖啡因魔物</span>
+    <h2 class="b-quest">討伐：北安路的綠衣女妖</h2>
+    <div class="b-shop">STARBUCKS Tainan Bei'an Shop</div>
+    <p class="b-flavor">【一般委託】穩紮穩打的日常獵物。以濃縮魔力惑人心神，據聞其香氣可令獵人徹夜不眠。</p>
+    <div class="b-loc">📍 安南區</div>
+    <div class="b-divider"></div>
+    <div class="b-foot">
+      <div class="b-reward"><div class="lbl">REWARD</div><div class="val">賞金 30 EXP</div></div>
+      <a class="accept-btn">接令 →</a>
+    </div>
+  </article>
+
+  <!-- S 級 隱藏名店 -->
+  <article class="bounty b2">
+    <span class="nail l"></span><span class="nail r"></span>
+    <span class="seal S">S</span>
+    <span class="b-type">深焙術士</span>
+    <h2 class="b-quest">攻略：台江畔的拿鐵幻影</h2>
+    <div class="b-shop">STARBUCKS Tainan Taijiang Shop</div>
+    <p class="b-flavor">【傳說級懸賞】此乃公會認證的頂級獵物，慕名者眾。傳說啜飲一口便會上癮，是溫柔而危險的據點。 ⟡ 公會密報：疑為深藏不露的隱藏名店，賞金加倍。</p>
+    <div class="b-loc">📍 安南區</div>
+    <div class="b-divider"></div>
+    <div class="b-foot">
+      <div class="b-reward hi"><div class="lbl">REWARD</div>
+        <div class="val">賞金 100 EXP <span class="gem-pill">隱藏名店 ×2</span></div></div>
+      <a class="accept-btn">接令 →</a>
+    </div>
+  </article>
+</body>
+</html>
