@@ -20,7 +20,41 @@ _FIELD_MASK = ','.join([
     'places.rating',
     'places.userRatingCount',
     'places.regularOpeningHours',
+    'places.primaryType',
+    'places.types',
 ])
+
+_TYPE_TO_CUISINE = {
+    'cafe':                   '咖啡',
+    'coffee_shop':            '咖啡',
+    'breakfast_restaurant':   '早午餐',
+    'brunch_restaurant':      '早午餐',
+    'ramen_restaurant':       '麵食',
+    'noodle_restaurant':      '麵食',
+    'japanese_restaurant':    '日式',
+    'sushi_restaurant':       '日式',
+    'ramen_restaurant':       '麵食',
+    'hot_pot_restaurant':     '火鍋',
+    'shabu_shabu_restaurant': '火鍋',
+    'barbecue_restaurant':    '燒烤',
+    'korean_restaurant':      '燒烤',
+    'dessert_shop':           '甜點',
+    'ice_cream_shop':         '甜點',
+    'cake_shop':              '甜點',
+    'bakery':                 '甜點',
+    'fast_food_restaurant':   '便當',
+    'meal_takeaway':          '便當',
+    'taiwanese_restaurant':   '小吃',
+    'chinese_restaurant':     '小吃',
+    'night_food_market':      '小吃',
+}
+
+
+def _map_cuisine(primary_type: str | None, types: list | None) -> str | None:
+    for t in ([primary_type] if primary_type else []) + (types or []):
+        if t and t in _TYPE_TO_CUISINE:
+            return _TYPE_TO_CUISINE[t]
+    return None
 
 
 def _cell_id(lat: float, lng: float) -> str:
@@ -140,6 +174,7 @@ def ensure_shops_fetched(center_lat: float, center_lng: float) -> None:
             'cell_id': _cell_id(lat, lng),
             'opening_hours': _convert_hours(p.get('regularOpeningHours')),
             'opening_hours_fetched_at': now_iso,
+            'cuisine': _map_cuisine(p.get('primaryType'), p.get('types')),
             'source': 'places_api',
         }, on_conflict='place_id').execute()
         upserted += 1

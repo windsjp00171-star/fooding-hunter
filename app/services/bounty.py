@@ -4,6 +4,8 @@ import random
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
+from app.flavor import make_flavor
+
 TZ = ZoneInfo('Asia/Taipei')
 
 _GRADES = [('S', 4.6, 50), ('A', 4.2, 40), ('B', 3.8, 30), ('C', 0.0, 60)]
@@ -150,5 +152,6 @@ def draw_bounties(shops, user_id, origin_key, exclude_ids, count=3):
             'is_hidden_gem': gem,
             'display_exp': base_reward * (2 if gem else 1),
             'quest_category': _QUEST_CATEGORY[grade],
+            'flavor': make_flavor(shop, grade, gem),
         })
     return result

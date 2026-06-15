@@ -89,9 +89,20 @@ body{
     linear-gradient(160deg, var(--parch-hi), var(--parch) 55%, var(--parch-lo));
   box-shadow:0 1px 0 rgba(255,255,255,.4) inset, 0 10px 18px rgba(0,0,0,.45), 0 2px 4px rgba(0,0,0,.3);
   clip-path:polygon(0 1%, 99% 0, 100% 98%, 1% 100%);
+  opacity:0; transform:translateY(-36px) rotate(0deg);
+  animation:pin-drop .6s cubic-bezier(.34,1.3,.5,1) forwards;
 }
-.bounty:nth-child(odd){ transform:rotate(-1.2deg); }
-.bounty:nth-child(even){ transform:rotate(.9deg); }
+.bounty:nth-child(odd){ --rest:-1.2deg; }
+.bounty:nth-child(even){ --rest:.9deg; }
+.bounty.b1{ animation-delay:.1s; }
+.bounty.b2{ animation-delay:.35s; }
+.bounty.b3{ animation-delay:.6s; }
+@keyframes pin-drop{
+  0%  { opacity:0; transform:translateY(-36px) rotate(0deg); }
+  60% { opacity:1; transform:translateY(4px) rotate(var(--rest)); }
+  80% { transform:translateY(-2px) rotate(var(--rest)); }
+  100%{ opacity:1; transform:translateY(0) rotate(var(--rest)); }
+}
 .bounty::after{
   content:""; position:absolute; inset:0; border-radius:2px; pointer-events:none;
   box-shadow:inset 0 0 0 1px rgba(120,90,50,.25), inset 0 0 30px rgba(140,100,55,.12);
@@ -117,17 +128,38 @@ body{
   clip-path:polygon(50% 0,63% 8%,78% 4%,84% 18%,97% 26%,92% 42%,100% 54%,90% 66%,93% 82%,77% 84%,67% 96%,52% 89%,37% 97%,28% 84%,12% 85%,16% 68%,4% 56%,12% 43%,5% 27%,20% 22%,25% 7%,40% 11%);
   text-shadow:0 1px 2px rgba(0,0,0,.5);
 }
-.seal.S{ background:radial-gradient(circle at 38% 32%, #f0d68a, #d9a441 55%, #9c7320); }
+.seal.S{
+  background:radial-gradient(circle at 38% 32%, #f0d68a, #d9a441 55%, #9c7320);
+  animation:seal-glow 2.5s ease-in-out infinite;
+}
+@keyframes seal-glow{
+  0%,100%{ box-shadow:0 3px 6px rgba(0,0,0,.4),inset 0 2px 4px rgba(255,255,255,.25),inset 0 -3px 6px rgba(0,0,0,.35),0 0 0 rgba(217,164,65,0); }
+  50%     { box-shadow:0 3px 6px rgba(0,0,0,.4),inset 0 2px 4px rgba(255,255,255,.25),inset 0 -3px 6px rgba(0,0,0,.35),0 0 16px rgba(217,164,65,.6); }
+}
 .seal.A{ background:radial-gradient(circle at 38% 32%, #d36c52, #b5402e 55%, #7e2417); }
 .seal.B{ background:radial-gradient(circle at 38% 32%, #6f93c4, #4a6fa5 55%, #344f78); }
 .seal.C{ background:radial-gradient(circle at 38% 32%, #9a9a8e, #6f6f64 55%, #4a4a40); }
 
+/* 怪物種類標籤 */
 .b-type{
   font-family:'DotGothic16'; font-size:11px; letter-spacing:.18em; color:var(--seal);
   border:1px solid var(--seal); display:inline-block; padding:1px 8px; border-radius:2px;
   background:rgba(181,64,46,.06);
 }
-.b-name{ font-family:'DotGothic16'; font-size:20px; line-height:1.3; margin:8px 0 2px; color:#2b2012; padding-right:50px; }
+/* 委託標題（大） */
+.b-quest{
+  font-family:'DotGothic16'; font-size:20px; line-height:1.3; margin:8px 0 1px;
+  color:#7a2418; padding-right:50px;
+  text-shadow:0 1px 0 rgba(255,255,255,.3);
+}
+/* 店名（小，附屬） */
+.b-shop{ font-size:12.5px; color:var(--ink-soft); margin-bottom:8px; }
+.b-shop::before{ content:"⚑ "; }
+/* 風味敘述 */
+.b-flavor{
+  font-size:12px; line-height:1.7; color:#5a4530; font-style:italic;
+  border-left:2px solid rgba(181,64,46,.3); padding-left:9px; margin-bottom:12px;
+}
 .b-loc{ display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-soft); margin-bottom:14px; flex-wrap:wrap; }
 .tag-unknown{
   display:inline-flex; align-items:center; gap:3px; background:#d8c294; color:#6a4f25;
@@ -135,16 +167,23 @@ body{
 }
 .b-divider{ height:1px; background:repeating-linear-gradient(90deg,#b59a64 0 5px,transparent 5px 9px); margin:0 0 12px; }
 
-.b-detail{ font-size:12.5px; color:#5a3818; margin-bottom:14px; line-height:1.7; }
-.b-detail .star{ color:#c8800a; letter-spacing:.05em; }
-
 .b-foot{ display:flex; align-items:flex-end; justify-content:space-between; gap:12px; }
 .b-reward .lbl{ font-size:10px; color:var(--ink-soft); letter-spacing:.15em; }
 .b-reward .val{ font-family:'DotGothic16'; font-size:18px; color:#7a3a12; display:flex; align-items:center; gap:8px; margin-top:2px; flex-wrap:wrap; }
+.b-reward.hi .val{ color:#9c6b00; animation:reward-shine 2s ease-in-out infinite; }
+@keyframes reward-shine{
+  0%,100%{ text-shadow:0 0 0 rgba(217,164,65,0); }
+  50%     { text-shadow:0 0 10px rgba(217,164,65,.7); }
+}
 .gem-pill{
   font-size:11px; background:linear-gradient(180deg,#f0d68a,#d9a441); color:#5a3a0a;
   padding:2px 8px; border-radius:3px; font-family:'Noto Sans TC'; font-weight:700;
-  box-shadow:0 1px 2px rgba(0,0,0,.3); transform:rotate(-3deg); border:1px solid #b8882a;
+  box-shadow:0 1px 2px rgba(0,0,0,.3); border:1px solid #b8882a;
+  animation:gem-wobble 3s ease-in-out infinite;
+}
+@keyframes gem-wobble{
+  0%,100%{ transform:rotate(-3deg) scale(1); }
+  50%     { transform:rotate(2deg) scale(1.05); }
 }
 
 .accept-btn{
@@ -153,8 +192,15 @@ body{
   background:linear-gradient(180deg,#b5402e,#8a2c1c);
   box-shadow:0 3px 0 #5e1c11, 0 5px 10px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.2);
   transition:transform .06s, box-shadow .06s;
+  position:relative; overflow:hidden;
 }
 .accept-btn:active{ transform:translateY(3px); box-shadow:0 0 0 #5e1c11, 0 2px 6px rgba(0,0,0,.35); }
+.accept-btn::after{
+  content:""; position:absolute; top:0; left:-100%; width:60%; height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.4),transparent);
+}
+.accept-btn:hover::after{ animation:btn-sweep .6s ease; }
+@keyframes btn-sweep{ to{ left:120%; } }
 
 /* 已討伐蓋章 */
 .hunted-overlay{ position:absolute; inset:0; z-index:10; background:rgba(30,20,8,.68); display:flex; align-items:center; justify-content:center; border-radius:2px; }
@@ -179,7 +225,10 @@ body{
 .back-link{ display:block; text-align:center; margin-top:8px; color:#b89a64; font-size:13px; font-family:'DotGothic16'; letter-spacing:.08em; text-decoration:none; }
 .back-link:hover{ color:var(--gold); }
 
-@media (prefers-reduced-motion:reduce){ *{ animation:none!important; transition:none!important; } }
+@media (prefers-reduced-motion:reduce){
+  .bounty{ opacity:1!important; transform:rotate(var(--rest,0deg))!important; }
+  *{ animation:none!important; transition:none!important; }
+}
 </style>
 {% endblock %}
 {% block content %}
@@ -218,12 +267,14 @@ body{
     {% for b in bounties %}
     {% set shop = b.shop %}
     {% set hunted = shop.id in all_hunted_ids %}
-    <article class="bounty">
+    <article class="bounty b{{ loop.index }}">
       <span class="nail l"></span><span class="nail r"></span>
       <span class="seal {{ b.grade }}">{{ b.grade }}</span>
 
-      <span class="b-type">{{ b.quest_category }}</span>
-      <h2 class="b-name">{{ shop.name }}</h2>
+      <span class="b-type">{{ b.flavor.monster_tag }}</span>
+      <h2 class="b-quest">{{ b.flavor.quest_title }}</h2>
+      <div class="b-shop">{{ shop.name }}</div>
+      <p class="b-flavor">{{ b.flavor.quest_desc }}</p>
       <div class="b-loc">
         📍 {{ shop.district or '未知地區' }}
         {% if shop.opening_unknown %}<span class="tag-unknown">⚠ 出沒時間不明</span>{% endif %}
@@ -231,18 +282,8 @@ body{
 
       <div class="b-divider"></div>
 
-      <div class="b-detail">
-        {% if shop.rating %}
-        冒險者評價：<span class="star">
-          {% set r = shop.rating | float %}
-          {% for i in range(5) %}{% if i < (r | round(0, 'floor') | int) %}★{% else %}☆{% endif %}{% endfor %}
-          {{ "%.1f"|format(r) }}</span>{% if shop.rating_count %}（{{ shop.rating_count }} 則）{% endif %}<br>
-        {% endif %}
-        {% if shop.address %}座標：{{ shop.address }}{% endif %}
-      </div>
-
       <div class="b-foot">
-        <div class="b-reward">
+        <div class="b-reward{% if b.grade == 'S' %} hi{% endif %}">
           <div class="lbl">REWARD</div>
           <div class="val">
             賞金 {{ b.display_exp }} EXP
@@ -287,14 +328,6 @@ window.addEventListener('load', () => {
   setTimeout(() => {
     document.querySelectorAll('.progress-fill').forEach(el => { el.style.width = el.dataset.pct + '%'; });
   }, 250);
-  // 火漆章蓋章微動效
-  document.querySelectorAll('.seal').forEach((s, i) => {
-    s.style.transform = 'rotate(-10deg) scale(0)';
-    setTimeout(() => {
-      s.style.transition = 'transform .35s cubic-bezier(.34,1.56,.64,1)';
-      s.style.transform = 'rotate(-10deg) scale(1)';
-    }, 200 + i * 160);
-  });
 });
 </script>
 {% endblock %}
