@@ -27,6 +27,11 @@
       再試一次
     </button>
     <br>
+    <a href="/expedition"
+      style="display:inline-block;margin-top:1rem;background:var(--red);color:var(--parchment);padding:0.75rem 1.5rem;border-radius:6px;font-size:0.9rem;text-decoration:none;font-weight:700;">
+      🗺 改用遠征模式
+    </a>
+    <br>
     <a href="/" style="display:inline-block;margin-top:1rem;color:var(--parchment);opacity:0.4;font-size:0.8rem;text-decoration:none;">← 回酒館</a>
   </div>
 </div>
@@ -58,15 +63,19 @@ function startGPS() {
       };
       errMsg.textContent = msgs[err.code] || '未知錯誤。';
     },
-    { timeout: 10000, maximumAge: 60000 }
+    { timeout: 12000, maximumAge: 60000, enableHighAccuracy: false }
   );
 }
 
 document.getElementById('btn-gps').addEventListener('click', startGPS);
 document.getElementById('btn-retry').addEventListener('click', startGPS);
 
-// 若瀏覽器支援且已有快取位置，自動觸發
-if (!navigator.geolocation) {
+// LINE 內建瀏覽器不支援定位，直接顯示提示
+if (/\bLine\b/i.test(navigator.userAgent)) {
+  prompt.style.display  = 'none';
+  errDiv.style.display  = 'block';
+  errMsg.textContent    = 'LINE 瀏覽器無法使用定位功能。請點右上角選單 → 用其他瀏覽器開啟，或改用遠征模式。';
+} else if (!navigator.geolocation) {
   prompt.style.display = 'none';
   errDiv.style.display = 'block';
   errMsg.textContent = '你的瀏覽器不支援定位功能。';
