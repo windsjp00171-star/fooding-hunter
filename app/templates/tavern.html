@@ -13,7 +13,7 @@ body{ overflow-x:hidden; background:#0c0805; max-width:430px; }
 .keeper-bg{
   position:fixed; inset:0; max-width:430px; margin:0 auto; z-index:0;
   background-size:cover; background-position:center top;
-  transition:opacity .5s ease;
+  transition:background-image .5s ease, opacity .5s ease;
 }
 
 /* 由下往上暗色漸層：讓下半部 UI 沉下來 */
@@ -49,12 +49,13 @@ body{ overflow-x:hidden; background:#0c0805; max-width:430px; }
 }
 .switch-btn:active{ transform:scale(.95); }
 
-.spacer{ flex:1; min-height:200px; }
+.spacer{ flex:1; min-height:320px; }
 
 /* 對話框 */
 .bubble{
   position:relative; margin:0 2px 14px;
-  background:linear-gradient(180deg,var(--parchment),var(--parchment-dark));
+  background:rgba(240,226,192,.88);
+  backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px);
   color:var(--ink); border-radius:12px; padding:13px 15px;
   box-shadow:0 6px 18px rgba(0,0,0,.5);
 }
@@ -66,9 +67,10 @@ body{ overflow-x:hidden; background:#0c0805; max-width:430px; }
   position:relative; margin:0 2px 14px; border-radius:10px; padding:14px 16px; overflow:hidden;
   background:
     repeating-linear-gradient(135deg,rgba(255,255,255,.025) 0 2px,transparent 2px 8px),
-    linear-gradient(155deg,#2e4756,#28323f 55%,#1f2731);
+    linear-gradient(155deg,rgba(46,71,86,.92),rgba(40,50,63,.92) 55%,rgba(31,39,49,.92));
   border:1px solid rgba(224,176,74,.4);
   box-shadow:0 8px 22px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08);
+  backdrop-filter:blur(2px); -webkit-backdrop-filter:blur(2px);
 }
 .license::after{ content:"⚔"; position:absolute; right:-8px; bottom:-18px; font-size:96px; color:rgba(224,176,74,.07); transform:rotate(-12deg); }
 .lic-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }

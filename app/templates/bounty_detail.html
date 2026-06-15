@@ -125,17 +125,14 @@ body{
 
 /* 地圖按鈕 */
 .map-btn{
-  display:flex; align-items:center; justify-content:center; gap:8px;
-  width:100%; margin-top:16px; padding:12px;
-  font-family:'DotGothic16'; font-size:14px; color:#3a2808;
-  text-decoration:none; border-radius:3px;
-  background:linear-gradient(180deg,#d8bc8a,#c0a468);
-  border:1px solid #9e8045;
-  box-shadow:0 3px 0 #7a6030, 0 5px 10px rgba(0,0,0,.3),
-             inset 0 1px 0 rgba(255,255,255,.25);
-  transition:transform .06s, box-shadow .06s;
+  font-family:'DotGothic16'; font-size:13px; color:#5a3818;
+  background:linear-gradient(180deg,#efe3c0,#e0cfa0);
+  border:1.5px solid #b59a64; border-radius:3px;
+  padding:9px 14px; text-decoration:none; white-space:nowrap;
+  box-shadow:0 2px 0 #9a8050; display:flex; align-items:center; justify-content:center; gap:4px;
+  width:100%; margin-top:16px;
 }
-.map-btn:active{ transform:translateY(3px); box-shadow:0 0 0 #7a6030, 0 2px 6px rgba(0,0,0,.3); }
+.map-btn:active{ transform:translateY(2px); box-shadow:0 0 0 #9a8050; }
 </style>
 {% endblock %}
 {% block content %}
