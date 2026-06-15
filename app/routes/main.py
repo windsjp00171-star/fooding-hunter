@@ -1,3 +1,4 @@
+import hashlib
 from datetime import datetime, timedelta
 from functools import wraps
 from zoneinfo import ZoneInfo
@@ -27,7 +28,6 @@ def login_required(f):
 @bp.route('/welcome')
 @login_required
 def welcome():
-    import hashlib
     data = session.pop('welcome', None)
     if not data:
         return redirect(url_for('main.tavern'))
@@ -49,8 +49,6 @@ def welcome():
 @bp.route('/')
 @login_required
 def tavern():
-    import hashlib
-    from flask import jsonify
     user_id = session['user_id']
     sb = get_supabase()
 
@@ -131,9 +129,8 @@ def board():
         radius_km = 2.5
 
     # Fetch from Places API if this cell is stale (no-op if cached or no key)
-    if mode == 'explore':
-        from app.services.places import ensure_shops_fetched
-        ensure_shops_fetched(center_lat, center_lng)
+    from app.services.places import ensure_shops_fetched
+    ensure_shops_fetched(center_lat, center_lng)
 
     # Query shops in surrounding cells
     sb = get_supabase()
@@ -282,10 +279,12 @@ def complete_bounty(shop_id):
         'shop_district': shop.get('district') or '',
         'grade': grade,
         'exp_gained': exp_gained,
+        'player_rating': player_rating,
         'is_hidden_gem': gem,
         'is_revisit': visit_count >= 1,
         'leveled_up': level_after['level'] > level_before['level'],
         'level_info': level_after,
+        'license_no': f"TW-2026-{hashlib.md5(user_id.encode()).hexdigest()[:6].upper()}",
     }
 
     return redirect(url_for('main.hunt_result'))
