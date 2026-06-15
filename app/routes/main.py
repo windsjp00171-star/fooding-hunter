@@ -290,7 +290,20 @@ def hunt_result():
 @bp.route('/expedition')
 @login_required
 def expedition():
-    return '遠征選區（施工中）', 200
+    from app.tainan_districts import DISTRICTS
+    user_id = session['user_id']
+    sb = get_supabase()
+    hunts = sb.table('hunts').select('district').eq('user_id', user_id).execute().data
+    district_counts: dict[str, int] = {}
+    for h in hunts:
+        d = h.get('district')
+        if d:
+            district_counts[d] = district_counts.get(d, 0) + 1
+    return render_template('expedition.html',
+        districts=list(DISTRICTS.keys()),
+        district_counts=district_counts,
+        display_name=session['display_name'],
+    )
 
 
 @bp.route('/dex')
