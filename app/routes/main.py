@@ -11,6 +11,7 @@ from app.services.bounty import (
     get_level_info, today_header, get_grade, is_hidden_gem,
 )
 from app.flavor import make_flavor
+from app.services.ratelimit import rate_limit
 
 bp = Blueprint('main', __name__)
 TZ = ZoneInfo('Asia/Taipei')
@@ -112,6 +113,7 @@ def set_keeper():
 
 @bp.route('/board')
 @login_required
+@rate_limit(max_calls=30, per_seconds=60)  # caps cell-sweeping that triggers Places API
 def board():
     mode = request.args.get('mode', 'explore')
     lat = request.args.get('lat', type=float)
@@ -217,6 +219,7 @@ def board():
 
 @bp.route('/board/reroll', methods=['POST'])
 @login_required
+@rate_limit(max_calls=20, per_seconds=60)
 def board_reroll():
     user_id = session['user_id']
     sb = get_supabase()
@@ -256,6 +259,14 @@ def bounty(shop_id):
     prev_visits = sb.table('hunts').select('id').eq('user_id', user_id).eq('shop_id', shop_id).execute().data
     visit_count = len(prev_visits)
 
+    # Record that this bounty was accepted through the proper flow. Completion
+    # later requires the shop_id to be in this list, so a crafted/replayed POST
+    # to /complete that never went through the board → detail page is rejected.
+    accepted = session.get('accepted_bounties', [])
+    if shop_id not in accepted:
+        accepted.append(shop_id)
+    session['accepted_bounties'] = accepted[-12:]  # bound session size
+
     _, base_reward = get_grade(shop.get('rating'))
     gem = is_hidden_gem(shop.get('rating'), shop.get('rating_count'))
     multiplier = (2 if gem else 1) * (0.3 if visit_count >= 1 else 1)
@@ -275,6 +286,7 @@ def bounty(shop_id):
 
 @bp.route('/bounty/<shop_id>/complete', methods=['POST'])
 @login_required
+@rate_limit(max_calls=20, per_seconds=60)  # defense-in-depth vs mass EXP farming
 def complete_bounty(shop_id):
     user_id = session['user_id']
     sb = get_supabase()
@@ -287,6 +299,15 @@ def complete_bounty(shop_id):
     shop = sb.table('shops').select('*').eq('id', shop_id).maybe_single().execute().data
     if not shop:
         return redirect(url_for('main.tavern'))
+
+    # Flow gate: only shops accepted via the board → detail page can be completed.
+    # Single-use: consume the acceptance so each hunt requires going through the
+    # flow again (blocks blind/replayed POSTs that skip the bounty draw).
+    accepted = session.get('accepted_bounties', [])
+    if shop_id not in accepted:
+        return redirect(url_for('main.tavern'))
+    accepted.remove(shop_id)
+    session['accepted_bounties'] = accepted
 
     # Double-submit guard: same user+shop within 1 minute → ignore
     one_min_ago = (datetime.now(TZ) - timedelta(minutes=1)).isoformat()

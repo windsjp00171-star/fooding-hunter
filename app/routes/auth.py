@@ -35,7 +35,11 @@ def login():
 
 @bp.route('/callback')
 def callback():
-    if request.args.get('error') or request.args.get('state') != session.pop('oauth_state', None):
+    # CSRF: state must be present, match the one we issued, and is single-use.
+    # Fail closed if no state was stored (don't let a missing/empty state pass).
+    expected_state = session.pop('oauth_state', None)
+    given_state = request.args.get('state')
+    if request.args.get('error') or not expected_state or given_state != expected_state:
         return redirect(url_for('auth.login'))
 
     token = _exchange_code(request.args.get('code', ''))
