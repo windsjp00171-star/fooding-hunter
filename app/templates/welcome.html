@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %}{% if is_new_user %}執照核發{% else %}歡迎回來{% endif %} — 美食獵人執照{% endblock %}
+{% block head %}
+<style>
+:root{
+  --gold:#d9a441; --gold-deep:#9c7320; --seal:#b5402e;
+  --parch-hi:#f6ead0; --parch:#ecdcb4;
+}
+body{
+  overflow:hidden;
+  background:rgba(10,7,4,.96);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  min-height:100dvh; padding:0 32px; text-align:center;
+}
+
+.issue-label{
+  font-family:'DotGothic16'; font-size:13px; letter-spacing:.3em; color:var(--gold-deep);
+  margin-bottom:22px; opacity:0;
+  animation:fade-up .6s ease .2s forwards;
+}
+
+/* 執照卡 */
+.license-card{
+  position:relative; width:300px; border-radius:12px; padding:22px 22px 20px;
+  background:
+    repeating-linear-gradient(135deg, rgba(255,255,255,.025) 0 2px, transparent 2px 8px),
+    linear-gradient(155deg,#2e4756,#28323f 55%,#1f2731);
+  border:1px solid rgba(224,176,74,.4);
+  box-shadow:0 14px 40px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.08);
+  opacity:0; transform:translateY(40px) scale(.9);
+  animation:card-in .7s cubic-bezier(.34,1.4,.5,1) .4s forwards;
+}
+.license-card::after{
+  content:"⚔"; position:absolute; right:-8px; bottom:-20px; font-size:110px;
+  color:rgba(224,176,74,.07); transform:rotate(-12deg); pointer-events:none;
+}
+@keyframes card-in{ to{ opacity:1; transform:translateY(0) scale(1); } }
+
+.lc-top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:14px; }
+.lc-label{ font-family:'DotGothic16'; font-size:10px; letter-spacing:.3em; color:#9fb4c4; }
+.lc-no{
+  font-family:'DotGothic16'; font-size:11px; color:var(--gold);
+  opacity:0; animation:fade-in .4s ease 1.5s forwards;
+}
+.lc-name{
+  font-family:'DotGothic16'; font-size:24px; color:#fff; letter-spacing:.04em; text-align:left;
+  opacity:0; animation:fade-up .5s ease 1s forwards;
+}
+.lc-rank{
+  display:inline-block; margin-top:3px; font-size:13px; color:var(--gold); font-weight:700;
+  text-align:left;
+  opacity:0; animation:fade-up .5s ease 1.2s forwards;
+}
+
+/* 公會認證鋼印：旋轉砸下 */
+.stamp{
+  position:absolute; top:50%; left:50%; width:110px; height:110px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  border:4px solid var(--seal); color:var(--seal);
+  font-family:'DotGothic16'; font-size:14px; text-align:center; line-height:1.4;
+  transform:translate(-50%,-50%) scale(3) rotate(-25deg); opacity:0;
+  box-shadow:inset 0 0 0 2px rgba(181,64,46,.3);
+  animation:stamp-down .5s cubic-bezier(.5,0,.4,1.4) 1.8s forwards;
+}
+@keyframes stamp-down{
+  0%  { opacity:0; transform:translate(-50%,-50%) scale(3) rotate(-25deg); }
+  60% { opacity:.95; transform:translate(-50%,-50%) scale(.95) rotate(-13deg); }
+  75% { transform:translate(-50%,-50%) scale(1.08) rotate(-13deg); }
+  100%{ opacity:.88; transform:translate(-50%,-50%) scale(1) rotate(-13deg); }
+}
+
+@keyframes fade-up{ from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fade-in{ to{opacity:1;} }
+
+/* 歡迎訊息 */
+.welcome-msg{
+  margin-top:26px; font-family:'DotGothic16'; font-size:17px;
+  color:var(--gold); letter-spacing:.06em;
+  text-shadow:0 0 16px rgba(217,164,65,.4);
+  opacity:0; animation:fade-up .6s ease 2.4s forwards;
+}
+.enter-hint{
+  margin-top:10px; font-size:11px; color:#8a7250;
+  opacity:0; animation:fade-up .6s ease 2.8s forwards;
+}
+
+@media (prefers-reduced-motion:reduce){ *{ animation-duration:.01s!important; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="issue-label">
+  {% if is_new_user %}獵 人 執 照 核 發 中{% else %}登 入 驗 證 完 成{% endif %}
+</div>
+
+<div class="license-card">
+  <div class="lc-top">
+    <span class="lc-label">獵 人 執 照</span>
+    <span class="lc-no">{{ license_no }}</span>
+  </div>
+  <div class="lc-name">{{ display_name }}</div>
+  <div class="lc-rank">Lv.{{ level_info.level }}　{{ level_info.name }}</div>
+  <div class="stamp">公會<br>認證</div>
+</div>
+
+<div class="welcome-msg">
+  {% if is_new_user %}歡迎加入狩獵，獵人。{% else %}歡迎回來，{{ display_name }} 獵人。{% endif %}
+</div>
+<div class="enter-hint">正在進入酒館…</div>
+
+<script>
+setTimeout(function(){ window.location.href = '/'; }, 3800);
+</script>
+{% endblock %}

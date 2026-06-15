@@ -47,15 +47,22 @@ def callback():
         return redirect(url_for('auth.login'))
 
     user_id = profile['userId']
-    get_supabase().table('users').upsert({
+    display_name = profile.get('displayName', '')
+    sb = get_supabase()
+
+    existing = sb.table('users').select('id').eq('id', user_id).maybe_single().execute()
+    is_new_user = existing.data is None
+
+    sb.table('users').upsert({
         'id': user_id,
-        'display_name': profile.get('displayName', ''),
+        'display_name': display_name,
         'picture_url': profile.get('pictureUrl'),
     }, on_conflict='id').execute()
 
     session['user_id'] = user_id
-    session['display_name'] = profile.get('displayName', '')
-    return redirect(url_for('main.tavern'))
+    session['display_name'] = display_name
+    session['welcome'] = {'is_new': is_new_user, 'name': display_name}
+    return redirect(url_for('main.welcome'))
 
 
 @bp.route('/logout')

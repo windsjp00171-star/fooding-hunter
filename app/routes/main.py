@@ -23,6 +23,28 @@ def login_required(f):
     return decorated
 
 
+@bp.route('/welcome')
+@login_required
+def welcome():
+    import hashlib
+    data = session.pop('welcome', None)
+    if not data:
+        return redirect(url_for('main.tavern'))
+    user_id = session['user_id']
+    sb = get_supabase()
+    total_exp = sum(
+        h['exp_gained']
+        for h in sb.table('hunts').select('exp_gained').eq('user_id', user_id).execute().data
+    )
+    license_no = f"TW-2026-{hashlib.md5(user_id.encode()).hexdigest()[:6].upper()}"
+    return render_template('welcome.html',
+        display_name=data['name'],
+        is_new_user=data['is_new'],
+        level_info=get_level_info(total_exp),
+        license_no=license_no,
+    )
+
+
 @bp.route('/')
 @login_required
 def tavern():

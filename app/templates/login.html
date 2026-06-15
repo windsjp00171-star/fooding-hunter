@@ -1,14 +1,162 @@
 {% extends 'base.html' %}
 {% block title %}登入 — 美食獵人執照{% endblock %}
-{% block content %}
-<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;padding:2rem;text-align:center;">
-  <p style="font-family:'DotGothic16';font-size:0.85rem;color:var(--gold);letter-spacing:0.2em;margin-bottom:0.5rem;">FOOD HUNTER LICENSE</p>
-  <h1 style="font-family:'DotGothic16';font-size:1.6rem;color:var(--parchment);margin-bottom:0.3rem;">美食獵人執照</h1>
-  <p style="color:var(--parchment);opacity:0.6;font-size:0.85rem;margin-bottom:3rem;">走進酒館，開始狩獵</p>
+{% block head %}
+<style>
+:root{ --gold:#d9a441; --gold-deep:#9c7320; --ember:#ff8a3d; }
 
-  <a href="{{ auth_url }}"
-     style="display:block;background:#06c755;color:#fff;padding:0.9rem 2.5rem;border-radius:6px;text-decoration:none;font-weight:700;font-size:1rem;letter-spacing:0.05em;">
-    使用 LINE 登入
-  </a>
+body{ overflow:hidden; max-width:430px; background:#0c0805; }
+
+.stage{
+  position:fixed; inset:0; max-width:430px; margin:0 auto;
+  overflow:hidden; perspective:1400px; background:#0c0805;
+}
+
+/* ── 門後酒館內部 ── */
+.interior{
+  position:absolute; inset:0;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:0 32px; text-align:center;
+  background:
+    radial-gradient(120% 55% at 50% 18%, rgba(255,180,90,.28), transparent 60%),
+    linear-gradient(180deg,#2c1f13,#1a120a 60%,#120c07);
+  opacity:0;
+}
+.stage.opened .interior{ animation:glow-in 1.4s ease .5s forwards; }
+@keyframes glow-in{ to{ opacity:1; } }
+
+.lamp{
+  position:absolute; top:8%; left:50%; transform:translateX(-50%);
+  width:260px; height:260px; border-radius:50%;
+  background:radial-gradient(circle,rgba(255,180,90,.3),transparent 68%);
+  filter:blur(8px); animation:flick 4s ease-in-out infinite;
+}
+@keyframes flick{ 0%,100%{opacity:.9} 45%{opacity:1} 70%{opacity:.78} }
+
+.eyebrow{
+  font-family:'DotGothic16'; font-size:12px; letter-spacing:.4em;
+  color:var(--gold-deep); text-indent:.4em; opacity:0;
+}
+.stage.opened .eyebrow{ animation:fade-up .8s ease 1.3s forwards; }
+
+.inn-title{
+  font-family:'DotGothic16'; font-size:33px; letter-spacing:.06em; color:var(--gold);
+  margin-top:6px; text-shadow:0 2px 0 #160f08, 0 0 22px rgba(255,180,90,.3); opacity:0;
+}
+.stage.opened .inn-title{ animation:fade-up .8s ease 1.45s forwards; }
+
+.rule{
+  display:flex; align-items:center; gap:10px; justify-content:center;
+  margin-top:10px; opacity:0;
+}
+.stage.opened .rule{ animation:fade-up .8s ease 1.55s forwards; }
+.rule::before,.rule::after{ content:""; height:1px; width:40px; }
+.rule::before{ background:linear-gradient(90deg,transparent,var(--gold-deep)); }
+.rule::after{ background:linear-gradient(90deg,var(--gold-deep),transparent); }
+.rule span{ font-size:11px; color:#b08a52; letter-spacing:.2em; }
+
+.subtitle{ font-size:14px; color:#c9a866; margin-top:16px; letter-spacing:.08em; opacity:0; }
+.stage.opened .subtitle{ animation:fade-up .8s ease 1.7s forwards; }
+
+@keyframes fade-up{ from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+.line-btn{
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  margin-top:42px; width:100%; max-width:300px;
+  background:#06c755; color:#fff; padding:15px 28px; border-radius:10px;
+  text-decoration:none; font-weight:700; font-size:16px; cursor:pointer;
+  box-shadow:0 6px 0 #04923f, 0 10px 22px rgba(6,199,85,.35); opacity:0;
+  transition:transform .06s, box-shadow .06s;
+}
+.stage.opened .line-btn{ animation:btn-pop .6s cubic-bezier(.34,1.56,.64,1) 1.95s forwards; }
+.line-btn:active{ transform:translateY(4px); box-shadow:0 2px 0 #04923f, 0 5px 14px rgba(6,199,85,.35); }
+@keyframes btn-pop{
+  0%{ opacity:0; transform:scale(.85) translateY(10px); }
+  100%{ opacity:1; transform:scale(1) translateY(0); }
+}
+.line-ic{
+  width:22px; height:22px; background:#fff; border-radius:6px; color:#06c755;
+  display:flex; align-items:center; justify-content:center; font-weight:900; font-size:13px;
+}
+
+/* ── 雙扇木門 ── */
+.door{
+  position:absolute; top:0; bottom:0; width:50%; z-index:5;
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.3) 0 2px, transparent 2px 26px),
+    repeating-linear-gradient(2deg, rgba(0,0,0,.08) 0 4px, transparent 4px 12px),
+    linear-gradient(180deg,#5a3d22,#3e2916 55%,#2c1d10);
+  box-shadow:inset 0 0 60px rgba(0,0,0,.5);
+  transform-style:preserve-3d;
+}
+.door::before{
+  content:""; position:absolute; inset:16px; border-radius:4px;
+  border:2px solid rgba(0,0,0,.35);
+  box-shadow:inset 0 0 0 4px rgba(255,220,160,.05), inset 0 2px 14px rgba(0,0,0,.4);
+}
+.door.left{ left:0; transform-origin:left center; border-right:2px solid #1a1108; }
+.door.right{ right:0; transform-origin:right center; border-left:2px solid #1a1108; }
+.stage.opened .door.left{ animation:open-left 1.6s cubic-bezier(.5,0,.3,1) forwards; }
+.stage.opened .door.right{ animation:open-right 1.6s cubic-bezier(.5,0,.3,1) forwards; }
+@keyframes open-left{ to{ transform:rotateY(105deg); } }
+@keyframes open-right{ to{ transform:rotateY(-105deg); } }
+
+.handle{
+  position:absolute; top:50%; width:26px; height:26px; border-radius:50%;
+  border:4px solid #2a2018; transform:translateY(-50%);
+  background:radial-gradient(circle at 40% 35%,#8a7a5a,#3a2f20);
+  box-shadow:0 2px 5px rgba(0,0,0,.6);
+}
+.door.left .handle{ right:14px; }
+.door.right .handle{ left:14px; }
+
+/* 門上招牌 */
+.door-sign{
+  position:absolute; top:11%; left:50%; transform:translateX(-50%); z-index:6;
+  font-family:'DotGothic16'; font-size:15px; letter-spacing:.2em; color:#e9c987;
+  background:linear-gradient(180deg,#4a3318,#2e2010);
+  border:2px solid #1c1208; border-radius:4px; padding:8px 18px;
+  box-shadow:0 6px 14px rgba(0,0,0,.6); text-shadow:0 1px 0 #000;
+  transition:opacity .5s ease;
+}
+.stage.opened .door-sign{ animation:sign-fade .6s ease .4s forwards; }
+@keyframes sign-fade{ to{ opacity:0; } }
+
+/* 輕點提示 */
+.knock{
+  position:absolute; bottom:14%; left:50%; transform:translateX(-50%); z-index:6;
+  font-size:13px; color:#c9a866; font-family:'DotGothic16'; letter-spacing:.1em;
+  animation:breathe 1.8s ease-in-out infinite;
+}
+@keyframes breathe{ 0%,100%{opacity:.5} 50%{opacity:1} }
+.stage.opened .knock{ display:none; }
+
+@media (prefers-reduced-motion:reduce){ *{ animation-duration:.01s!important; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="stage" id="stage">
+  <div class="interior">
+    <div class="lamp"></div>
+    <div class="eyebrow">FOOD HUNTER GUILD</div>
+    <div class="inn-title">美食獵人協會</div>
+    <div class="rule"><span>酒 館</span></div>
+    <div class="subtitle">領取你的獵人執照</div>
+    <a href="{{ auth_url }}" class="line-btn">
+      <span class="line-ic">L</span> 使用 LINE 登入
+    </a>
+  </div>
+
+  <div class="door left"><span class="handle"></span></div>
+  <div class="door right"><span class="handle"></span></div>
+  <div class="door-sign">美食獵人協會</div>
+  <div class="knock">▸ 點擊推開大門 ◂</div>
 </div>
+
+<script>
+const stage = document.getElementById('stage');
+stage.addEventListener('click', (e) => {
+  if (e.target.closest('.line-btn')) return;
+  if (!stage.classList.contains('opened')) stage.classList.add('opened');
+});
+</script>
 {% endblock %}
