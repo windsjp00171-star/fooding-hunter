@@ -1,0 +1,461 @@
+{% extends 'base.html' %}
+{% block title %}討伐完了 — 美食獵人執照{% endblock %}
+{% block head %}
+<style>
+:root{
+  --night:#15100b;
+  --wood-1:#3a2817; --wood-2:#2c1d11;
+  --parch-hi:#f6ead0; --parch:#ecdcb4; --parch-lo:#dcc794;
+  --ink:#2b2012; --ink-soft:#7a6038;
+  --seal:#b5402e; --gold:#d9a441; --gold-deep:#9c7320;
+}
+body{
+  background:
+    radial-gradient(120% 36% at 50% -4%, rgba(255,180,90,.14), transparent 60%),
+    linear-gradient(170deg, var(--wood-1), var(--wood-2) 55%, #241808);
+  min-height:100dvh;
+}
+.wrap{ padding:28px 18px 52px; }
+
+/* ── 討伐蓋章標題 ── */
+.result-head{ text-align:center; margin-bottom:26px; }
+.result-stamp{
+  display:inline-block;
+  font-family:'DotGothic16'; font-size:30px; color:var(--gold);
+  border:3px solid var(--gold); padding:.35rem 1.4rem; border-radius:4px;
+  transform:rotate(-3deg);
+  text-shadow:0 2px 8px rgba(217,164,65,.35);
+  box-shadow:0 0 0 1px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.4);
+  animation:stampIn .45s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes stampIn{
+  from{ transform:rotate(-3deg) scale(.4); opacity:0; }
+  to  { transform:rotate(-3deg) scale(1); opacity:1; }
+}
+.result-sub{ margin-top:12px; font-size:13px; color:#b89a64; font-family:'DotGothic16'; letter-spacing:.08em; }
+
+/* ── 升級橫幅 ── */
+.level-up-banner{
+  margin:0 0 20px; padding:14px 18px; border-radius:4px; text-align:center;
+  background:linear-gradient(135deg,rgba(217,164,65,.18),rgba(181,64,46,.12));
+  border:1px solid rgba(217,164,65,.4);
+  box-shadow:0 4px 14px rgba(0,0,0,.35), 0 0 24px rgba(217,164,65,.12);
+  animation:fadeUp .5s .3s ease both;
+}
+.level-up-banner .lu-label{ font-family:'DotGothic16'; font-size:11px; letter-spacing:.35em; color:var(--gold); margin-bottom:4px; }
+.level-up-banner .lu-title{ font-family:'DotGothic16'; font-size:22px; color:#fff; text-shadow:0 0 14px rgba(217,164,65,.5); }
+
+/* ── 分享卡 ── */
+.share-card{
+  border-radius:4px; overflow:hidden; margin:0 0 22px;
+  background:var(--parch);
+  box-shadow:0 8px 20px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.5);
+}
+.photo-slot{
+  position:relative; height:190px;
+  background:linear-gradient(160deg,#2e2318,#1e1610);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:8px; color:#6a5438; font-size:13px; font-family:'DotGothic16'; letter-spacing:.1em;
+  overflow:hidden;
+}
+.ph-preview{
+  position:absolute; inset:0; background-size:cover; background-position:center;
+  display:none;
+}
+.photo-slot.has-photo .ph-preview{ display:block; }
+.photo-slot.has-photo .ph-icon,
+.photo-slot.has-photo .ph-hint{ display:none; }
+.ph-icon{ font-size:36px; opacity:.4; }
+.ph-pick{
+  font-size:11px; padding:4px 14px; border-radius:12px; cursor:pointer;
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2);
+  color:#b89a64; font-family:'DotGothic16'; letter-spacing:.05em;
+}
+.ph-pick input{ display:none; }
+.photo-slot.has-photo .ph-pick{ position:absolute; bottom:10px; right:10px; font-size:10px; }
+
+.card-body{ padding:16px 18px 18px; }
+.card-grade{
+  display:inline-block; font-family:'DotGothic16'; font-size:13px;
+  padding:2px 10px; border-radius:2px; margin-bottom:8px; color:#f6ead0;
+}
+.card-grade.S{ background:#9c7320; }
+.card-grade.A{ background:#8a2c1c; }
+.card-grade.B{ background:#344f78; }
+.card-grade.C{ background:#4a4a40; }
+.card-shop-name{ font-family:'DotGothic16'; font-size:19px; color:var(--ink); line-height:1.3; margin-bottom:2px; }
+.card-district{ font-size:12px; color:var(--ink-soft); margin-bottom:14px; }
+.card-reward{
+  display:flex; align-items:baseline; gap:10px;
+  border-top:1px dashed rgba(160,120,60,.4); padding-top:12px;
+}
+.card-reward .exp-label{ font-size:11px; color:var(--ink-soft); letter-spacing:.12em; font-family:'DotGothic16'; }
+.card-reward .exp-val{ font-family:'DotGothic16'; font-size:26px; color:#9a2010; }
+.card-meta{ margin-left:auto; text-align:right; font-size:11px; color:var(--ink-soft); line-height:1.6; font-family:'DotGothic16'; }
+
+/* ── 等級條 ── */
+.level-bar{
+  margin:0 0 22px; border-radius:5px; padding:10px 14px;
+  background:linear-gradient(180deg,#4a3520,#382716);
+  border:1px solid #1c1208;
+  box-shadow:0 3px 8px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,220,160,.08);
+}
+.level-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+.level-lv{ font-family:'DotGothic16'; font-size:13px; color:var(--gold); }
+.level-name{ font-size:12px; color:#e8cfa0; opacity:.85; }
+.level-exp{ font-family:'DotGothic16'; font-size:11px; color:#c9a866; }
+.progress-track{ height:7px; background:rgba(0,0,0,.45); border-radius:4px; overflow:hidden; border:1px solid rgba(0,0,0,.5); }
+.progress-fill{ height:100%; border-radius:4px; width:0%; background:linear-gradient(90deg,var(--seal),var(--gold)); box-shadow:0 0 8px rgba(217,164,65,.5); transition:width .8s ease; }
+
+/* ── 倍率備註 ── */
+.mods{ margin:0 0 22px; display:flex; gap:8px; flex-wrap:wrap; }
+.mod-pill{
+  font-size:11px; padding:3px 10px; border-radius:12px; font-family:'DotGothic16'; border:1px solid;
+}
+.mod-gem  { background:rgba(217,164,65,.1); border-color:rgba(217,164,65,.4); color:#c9a030; }
+.mod-revisit{ background:rgba(181,64,46,.08); border-color:rgba(181,64,46,.3); color:#9a3820; }
+
+/* ── 行動按鈕 ── */
+.actions{ display:flex; flex-direction:column; gap:12px; }
+.btn-primary{
+  display:block; text-align:center; text-decoration:none;
+  font-family:'DotGothic16'; font-size:17px; letter-spacing:.08em; color:#f6ead0;
+  padding:15px; border-radius:3px;
+  background:linear-gradient(180deg,#b5402e,#8a2c1c);
+  box-shadow:0 3px 0 #5e1c11, 0 5px 12px rgba(0,0,0,.4);
+}
+.btn-secondary{
+  display:block; text-align:center; text-decoration:none;
+  font-family:'DotGothic16'; font-size:15px; letter-spacing:.08em; color:var(--gold);
+  padding:13px; border-radius:3px;
+  border:1.5px solid rgba(217,164,65,.4); background:rgba(58,40,23,.5);
+}
+.btn-share{
+  display:block; width:100%; text-align:center; cursor:pointer; border:none;
+  font-family:'DotGothic16'; font-size:15px; letter-spacing:.08em; color:#c9a866;
+  padding:13px; border-radius:3px;
+  border:1.5px solid rgba(217,164,65,.3); background:rgba(58,40,23,.4);
+}
+.btn-share:disabled{ opacity:.5; cursor:not-allowed; }
+
+@keyframes fadeUp{ from{ transform:translateY(12px); opacity:0; } to{ transform:translateY(0); opacity:1; } }
+@media (prefers-reduced-motion:reduce){ *{ animation:none!important; transition:none!important; } }
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+
+  <!-- 討伐蓋章 -->
+  <div class="result-head">
+    <div class="result-stamp">討伐完了</div>
+    <p class="result-sub">{{ last.shop_name }} を討伐した</p>
+  </div>
+
+  <!-- 升級橫幅（只在升級時出現） -->
+  {% if last.leveled_up %}
+  <div class="level-up-banner">
+    <div class="lu-label">LEVEL UP</div>
+    <div class="lu-title">Lv.{{ last.level_info.level }}　{{ last.level_info.name }}</div>
+  </div>
+  {% endif %}
+
+  <!-- 分享卡 -->
+  <div class="share-card">
+    <div class="photo-slot" id="photoSlot">
+      <div class="ph-preview" id="phPreview"></div>
+      <span class="ph-icon">📷</span>
+      <span class="ph-hint">加入照片（可選）</span>
+      <label class="ph-pick">
+        選照片
+        <input type="file" id="photoInput" accept="image/*" capture="environment">
+      </label>
+    </div>
+    <div class="card-body">
+      <span class="card-grade {{ last.grade }}">{{ last.grade }} 級委託</span>
+      <div class="card-shop-name">{{ last.shop_name }}</div>
+      <div class="card-district">📍 {{ last.shop_district or '未知地區' }}</div>
+      <div class="card-reward">
+        <div>
+          <div class="exp-label">REWARD</div>
+          <div class="exp-val">+{{ last.exp_gained }} EXP</div>
+        </div>
+        <div class="card-meta">
+          {{ display_name }}<br>
+          美食獵人執照
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 倍率標籤 -->
+  {% if last.is_hidden_gem or last.is_revisit %}
+  <div class="mods">
+    {% if last.is_hidden_gem %}<span class="mod-pill mod-gem">✦ 隱藏名店 ×2</span>{% endif %}
+    {% if last.is_revisit %}<span class="mod-pill mod-revisit">⚠ 二刷 ×0.3</span>{% endif %}
+  </div>
+  {% endif %}
+
+  <!-- 等級條 -->
+  <div class="level-bar">
+    <div class="level-row">
+      <span class="level-lv">Lv.{{ last.level_info.level }}　<span class="level-name">{{ last.level_info.name }}</span></span>
+      <span class="level-exp">
+        {% if last.level_info.next_exp %}{{ last.level_info.total_exp }} / {{ last.level_info.next_exp }} EXP
+        {% else %}MAX{% endif %}
+      </span>
+    </div>
+    <div class="progress-track">
+      <div class="progress-fill" data-pct="{{ last.level_info.progress }}"></div>
+    </div>
+  </div>
+
+  <!-- 行動按鈕 -->
+  <div class="actions">
+    <a href="/board?mode=explore" class="btn-primary">繼續狩獵 →</a>
+    <button class="btn-share" id="shareBtn">📤 生成分享卡</button>
+    <a href="/" class="btn-secondary">← 回酒館</a>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  'use strict';
+
+  const GRADE   = {{ last.grade | tojson }};
+  const SHOP    = {{ last.shop_name | tojson }};
+  const DIST    = {{ (last.shop_district or '未知地區') | tojson }};
+  const EXP     = {{ last.exp_gained }};
+  const STARS   = {{ last.player_rating | tojson }} || 0;
+  const HUNTER  = {{ display_name | tojson }};
+  const LIC     = {{ last.license_no | tojson }};
+  const LV      = 'Lv.{{ last.level_info.level }} {{ last.level_info.name }}';
+  const GEM     = {{ last.is_hidden_gem | tojson }};
+  const REVISIT = {{ last.is_revisit | tojson }};
+
+  const GBGR = {S:'#9c7320',A:'#8a2c1c',B:'#344f78',C:'#4a4a40'};
+  const GLIT = {S:'#f0d68a',A:'#d36c52',B:'#6f93c4',C:'#9a9a8e'};
+
+  let userPhoto = null;
+
+  // EXP bar
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      document.querySelectorAll('.progress-fill').forEach(el => {
+        el.style.width = el.dataset.pct + '%';
+      });
+    }, 350);
+  });
+
+  // Photo upload
+  document.getElementById('photoInput').addEventListener('change', function(){
+    const file = this.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        userPhoto = img;
+        const slot = document.getElementById('photoSlot');
+        slot.classList.add('has-photo');
+        document.getElementById('phPreview').style.backgroundImage = 'url(' + e.target.result + ')';
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // ─── Canvas helpers ───────────────────────────────────────────────
+  function rrect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.arcTo(x+w, y, x+w, y+h, r);
+    ctx.arcTo(x+w, y+h, x, y+h, r);
+    ctx.arcTo(x, y+h, x, y, r);
+    ctx.arcTo(x, y, x+w, y, r);
+    ctx.closePath();
+  }
+
+  function drawStar(ctx, cx, cy, r) {
+    const pts = 12;
+    ctx.beginPath();
+    for (let i = 0; i < pts * 2; i++) {
+      const a = i * Math.PI / pts - Math.PI / 2;
+      const rad = i % 2 === 0 ? r : r * 0.62;
+      const x = cx + rad * Math.cos(a), y = cy + rad * Math.sin(a);
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+  }
+
+  function drawSeal(ctx, cx, cy, r) {
+    const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, r * 1.6);
+    glow.addColorStop(0, 'rgba(217,164,65,.18)');
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = glow;
+    ctx.beginPath(); ctx.arc(cx, cy, r * 1.6, 0, Math.PI * 2); ctx.fill();
+
+    drawStar(ctx, cx, cy, r);
+    const g = ctx.createRadialGradient(cx - r*.18, cy - r*.18, 0, cx, cy, r);
+    g.addColorStop(0, GLIT[GRADE]); g.addColorStop(1, GBGR[GRADE]);
+    ctx.fillStyle = g; ctx.fill();
+
+    ctx.fillStyle = '#fff5e8';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.font = `bold ${Math.round(r * 1.05)}px 'DotGothic16', monospace`;
+    ctx.fillText(GRADE, cx, cy + 2);
+    ctx.textBaseline = 'alphabetic';
+  }
+
+  function fitText(ctx, text, maxW, maxFs, fontStr) {
+    let fs = maxFs;
+    ctx.font = fontStr.replace('$', fs);
+    while (ctx.measureText(text).width > maxW && fs > 24) {
+      fs -= 2; ctx.font = fontStr.replace('$', fs);
+    }
+  }
+
+  function modPill(ctx, label, mx, y, w, bg, border, color) {
+    ctx.fillStyle = bg; rrect(ctx, mx, y, w, 36, 18); ctx.fill();
+    ctx.strokeStyle = border; ctx.lineWidth = 1.5; rrect(ctx, mx, y, w, 36, 18); ctx.stroke();
+    ctx.fillStyle = color; ctx.font = "20px 'DotGothic16', monospace"; ctx.textAlign = 'center';
+    ctx.fillText(label, mx + w / 2, y + 25);
+    return mx + w + 14;
+  }
+
+  // ─── Build 1080×1350 canvas ──────────────────────────────────────
+  function buildCard() {
+    const C = document.createElement('canvas');
+    C.width = 1080; C.height = 1350;
+    const ctx = C.getContext('2d');
+
+    // Background
+    ctx.fillStyle = '#2a1c0e';
+    ctx.fillRect(0, 0, 1080, 1350);
+
+    // Polaroid card with shadow
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,.65)';
+    ctx.shadowBlur = 50; ctx.shadowOffsetY = 16;
+    ctx.fillStyle = '#f5eedd';
+    rrect(ctx, 90, 70, 900, 1230, 8); ctx.fill();
+    ctx.restore();
+
+    // Photo area (dark)
+    ctx.fillStyle = '#201610';
+    rrect(ctx, 90, 70, 900, 760, 8); ctx.fill();
+
+    if (userPhoto) {
+      ctx.save();
+      rrect(ctx, 90, 70, 900, 760, 8); ctx.clip();
+      const sc = Math.max(900 / userPhoto.width, 760 / userPhoto.height);
+      const sw = userPhoto.width * sc, sh = userPhoto.height * sc;
+      ctx.drawImage(userPhoto, 90 + (900 - sw) / 2, 70 + (760 - sh) / 2, sw, sh);
+      ctx.restore();
+      drawSeal(ctx, 175, 155, 55);
+    } else {
+      drawSeal(ctx, 540, 450, 150);
+    }
+
+    // White text area
+    const TY = 830;
+    ctx.fillStyle = '#f5eedd';
+    ctx.fillRect(90, TY, 900, 470);
+
+    // Grade pill
+    ctx.fillStyle = GBGR[GRADE];
+    rrect(ctx, 110, TY + 16, 118, 44, 4); ctx.fill();
+    ctx.fillStyle = '#f6ead0';
+    ctx.font = "bold 24px 'DotGothic16', monospace";
+    ctx.textAlign = 'center';
+    ctx.fillText(GRADE + ' 級', 169, TY + 44);
+
+    // Shop name (auto-shrink)
+    ctx.fillStyle = '#2b2012'; ctx.textAlign = 'left';
+    fitText(ctx, SHOP, 860, 48, `700 $px 'Noto Sans TC', sans-serif`);
+    ctx.fillText(SHOP, 110, TY + 108);
+
+    // District
+    ctx.fillStyle = '#7a6038';
+    ctx.font = "30px 'Noto Sans TC', sans-serif";
+    ctx.fillText('📍 ' + DIST, 110, TY + 152);
+
+    // Dashed divider
+    ctx.strokeStyle = 'rgba(180,150,80,.4)'; ctx.lineWidth = 1.5; ctx.setLineDash([10, 7]);
+    ctx.beginPath(); ctx.moveTo(110, TY + 178); ctx.lineTo(970, TY + 178); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // EXP
+    ctx.fillStyle = '#9a2010';
+    ctx.font = "bold 72px 'DotGothic16', monospace";
+    ctx.textAlign = 'left';
+    ctx.fillText('+' + EXP + ' EXP', 110, TY + 264);
+
+    // Stars
+    if (STARS > 0) {
+      ctx.fillStyle = '#c8800a';
+      ctx.font = "42px 'Noto Sans TC', sans-serif";
+      ctx.fillText('★'.repeat(STARS) + '☆'.repeat(5 - STARS), 110, TY + 316);
+    }
+
+    // Hunter meta
+    ctx.textAlign = 'right'; ctx.fillStyle = '#7a6038';
+    ctx.font = "28px 'DotGothic16', monospace"; ctx.fillText(HUNTER, 970, TY + 254);
+    ctx.font = "22px 'DotGothic16', monospace"; ctx.fillText(LV, 970, TY + 282);
+    ctx.fillStyle = '#9a8259';
+    ctx.font = "20px 'DotGothic16', monospace"; ctx.fillText(LIC, 970, TY + 308);
+
+    // Date
+    ctx.textAlign = 'left'; ctx.fillStyle = '#9a8259'; ctx.font = '24px monospace';
+    const d = new Date();
+    ctx.fillText(
+      d.getFullYear() + '.' + String(d.getMonth()+1).padStart(2,'0') + '.' + String(d.getDate()).padStart(2,'0'),
+      110, TY + 360
+    );
+
+    // Modifier pills
+    let mx = 110;
+    if (GEM)     mx = modPill(ctx, '✦ 隱藏名店 ×2', mx, TY+380, 234, 'rgba(217,164,65,.15)', 'rgba(217,164,65,.5)', '#c9a030');
+    if (REVISIT) modPill(ctx, '⚠ 二刷 ×0.3', mx, TY+380, 188, 'rgba(181,64,46,.1)', 'rgba(181,64,46,.35)', '#9a3820');
+
+    // Bottom branding strip
+    ctx.fillStyle = '#2a1c0e'; ctx.fillRect(90, 1272, 900, 28);
+    ctx.fillStyle = '#c9a866'; ctx.font = "20px 'DotGothic16', monospace"; ctx.textAlign = 'center';
+    ctx.fillText('美食獵人執照 — FOOD HUNTER LICENSE', 540, 1293);
+
+    // Outer card border
+    ctx.strokeStyle = 'rgba(120,90,50,.2)'; ctx.lineWidth = 1;
+    rrect(ctx, 90, 70, 900, 1230, 8); ctx.stroke();
+
+    return C;
+  }
+
+  // ─── Share / download ─────────────────────────────────────────────
+  document.getElementById('shareBtn').addEventListener('click', function(){
+    const btn = this;
+    btn.disabled = true; btn.textContent = '⏳ 生成中…';
+
+    document.fonts.ready.then(() => {
+      const C = buildCard();
+      C.toBlob(async blob => {
+        btn.disabled = false; btn.textContent = '📤 生成分享卡';
+        const fname = '美食獵人-' + SHOP + '.png';
+        const file = new File([blob], fname, { type: 'image/png' });
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ title: '美食獵人討伐紀錄', text: SHOP + ' ⚔ +' + EXP + ' EXP', files: [file] });
+            return;
+          } catch (e) { if (e.name === 'AbortError') return; }
+        }
+        // Fallback: download
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = fname;
+        a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      }, 'image/png');
+    });
+  });
+})();
+</script>
+{% endblock %}

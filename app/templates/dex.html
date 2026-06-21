@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+{% block title %}美食圖鑑 — 美食獵人執照{% endblock %}
+{% block head %}
+<style>
+:root{
+  --night:#15100b; --wood:#3a2817;
+  --parch-hi:#f6ead0; --parch:#ecdcb4; --parch-lo:#dcc794;
+  --ink:#2b2012; --ink-soft:#7a6038;
+  --seal:#b5402e; --gold:#d9a441; --gold-deep:#9c7320;
+}
+body{
+  background:
+    radial-gradient(120% 36% at 50% -4%, rgba(255,180,90,.14), transparent 60%),
+    linear-gradient(170deg,#3a2817,#2c1d11 55%,#241808);
+  min-height:100dvh;
+}
+.wrap{ padding:22px 18px 48px; }
+
+.page-back{
+  display:inline-flex; align-items:center; gap:6px;
+  font-family:'DotGothic16'; font-size:12px; color:#c9a866; text-decoration:none;
+  margin-bottom:16px; opacity:.8;
+}
+
+/* ── 統計概覽 ── */
+.stats-bar{ display:flex; gap:10px; margin-bottom:24px; }
+.stat{
+  flex:1; text-align:center; border-radius:5px; padding:10px 6px;
+  background:linear-gradient(180deg,#4a3520,#382716);
+  border:1px solid #1c1208;
+  box-shadow:0 3px 8px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,220,160,.08);
+}
+.stat .val{ font-family:'DotGothic16'; font-size:20px; color:var(--gold); }
+.stat .lbl{ font-size:10px; color:#c9a866; letter-spacing:.1em; margin-top:2px; }
+
+/* ── 章節標題 ── */
+.section-title{
+  font-family:'DotGothic16'; font-size:13px; color:#e9c987; letter-spacing:.08em;
+  margin-bottom:12px; padding-bottom:6px;
+  border-bottom:1px solid rgba(180,150,90,.3);
+}
+
+/* ── 台南制霸圖 ── */
+.map-grid{
+  display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin-bottom:28px;
+}
+.map-cell{
+  aspect-ratio:1; border-radius:4px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.38); border:1px solid rgba(60,40,20,.5);
+  text-decoration:none; cursor:default;
+}
+.map-cell.has-hunts{ cursor:pointer; }
+.map-cell-name{ font-size:9px; color:#5a4028; text-align:center; line-height:1.2; }
+.map-cell-cnt{ font-family:'DotGothic16'; font-size:11px; color:#5a4028; margin-top:1px; }
+.map-cell-badge{ font-size:7px; margin-top:1px; }
+
+.map-cell.tier-1{ background:rgba(217,164,65,.07); border-color:rgba(217,164,65,.22); }
+.map-cell.tier-1 .map-cell-name,
+.map-cell.tier-1 .map-cell-cnt{ color:#8a6e38; }
+
+.map-cell.tier-2{ background:rgba(217,164,65,.13); border-color:rgba(217,164,65,.4); }
+.map-cell.tier-2 .map-cell-name,
+.map-cell.tier-2 .map-cell-cnt{ color:#c9a866; }
+
+.map-cell.tier-snake{
+  background:linear-gradient(160deg,rgba(217,164,65,.2),rgba(181,64,46,.1));
+  border-color:rgba(217,164,65,.65);
+  box-shadow:0 0 8px rgba(217,164,65,.2);
+}
+.map-cell.tier-snake .map-cell-name,
+.map-cell.tier-snake .map-cell-cnt{ color:var(--gold); }
+.map-cell.tier-snake .map-cell-badge{ color:var(--seal); }
+
+.map-cell.tier-champ{
+  background:linear-gradient(160deg,rgba(217,164,65,.34),rgba(157,115,32,.28));
+  border-color:var(--gold);
+  box-shadow:0 0 14px rgba(217,164,65,.4), inset 0 0 0 1px rgba(217,164,65,.22);
+}
+.map-cell.tier-champ .map-cell-name,
+.map-cell.tier-champ .map-cell-cnt{ color:#f5d870; }
+.map-cell.tier-champ .map-cell-badge{ color:var(--gold); }
+
+/* ── 稱號陳列櫃 ── */
+.title-cabinet{
+  margin-bottom:28px; padding:14px 14px 12px;
+  background:linear-gradient(160deg,rgba(74,53,32,.5),rgba(40,28,16,.5));
+  border:1px solid rgba(180,150,90,.2); border-radius:5px;
+}
+.title-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+.title-chip{
+  font-family:'DotGothic16'; font-size:11px; padding:4px 10px; border-radius:12px;
+}
+.title-chip.champ{
+  background:rgba(217,164,65,.2); border:1px solid rgba(217,164,65,.5); color:var(--gold);
+}
+.title-chip.snake{
+  background:rgba(181,64,46,.15); border:1px solid rgba(181,64,46,.4); color:#e09070;
+}
+.prog-row{ margin-bottom:7px; }
+.prog-lbl{ display:flex; justify-content:space-between; font-size:10px; color:#9a8259; margin-bottom:3px; }
+.prog-track{ height:5px; background:rgba(0,0,0,.4); border-radius:3px; overflow:hidden; }
+.prog-fill{
+  height:100%; border-radius:3px;
+  background:linear-gradient(90deg,var(--seal),var(--gold));
+  transition:width .8s ease;
+}
+
+/* ── 討伐戰果 ── */
+.region{ margin-bottom:28px; }
+.region-head{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:10px; padding-bottom:6px;
+  border-bottom:1px solid rgba(180,150,90,.3);
+}
+.region-name{ font-family:'DotGothic16'; font-size:14px; color:#e9c987; letter-spacing:.06em; }
+.region-badge{
+  font-size:10px; padding:2px 8px; border-radius:10px;
+  background:rgba(181,64,46,.15); border:1px solid rgba(181,64,46,.35); color:#e09070;
+}
+.region-badge.champ{
+  background:rgba(217,164,65,.15); border-color:rgba(217,164,65,.4); color:var(--gold);
+}
+
+.hunt-card{
+  display:flex; align-items:flex-start; gap:10px;
+  padding:10px 12px; border-radius:3px; margin-bottom:8px; position:relative;
+  background:linear-gradient(160deg,var(--parch-hi),var(--parch) 60%,var(--parch-lo));
+  box-shadow:0 2px 6px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.4);
+  clip-path:polygon(0 1.5%,99% 0,100% 98.5%,1% 100%);
+}
+.hunt-card.s-grade{
+  background:linear-gradient(160deg,#fdf5d8,#f6ead0 40%,#f0d890 80%,#e0c460);
+  box-shadow:0 0 14px rgba(217,164,65,.24),0 2px 6px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.5);
+}
+.grade-dot{
+  flex:0 0 28px; height:28px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'DotGothic16'; font-size:13px; font-weight:bold; color:#fff5e8;
+  box-shadow:0 2px 4px rgba(0,0,0,.4);
+  clip-path:polygon(50% 0,63% 8%,78% 4%,84% 18%,97% 26%,92% 42%,100% 54%,90% 66%,93% 82%,77% 84%,67% 96%,52% 89%,37% 97%,28% 84%,12% 85%,16% 68%,4% 56%,12% 43%,5% 27%,20% 22%,25% 7%,40% 11%);
+}
+.grade-dot.S{ background:radial-gradient(circle at 38% 32%,#f0d68a,#d9a441 55%,#9c7320); }
+.grade-dot.A{ background:radial-gradient(circle at 38% 32%,#d36c52,#b5402e 55%,#7e2417); }
+.grade-dot.B{ background:radial-gradient(circle at 38% 32%,#6f93c4,#4a6fa5 55%,#344f78); }
+.grade-dot.C{ background:radial-gradient(circle at 38% 32%,#9a9a8e,#6f6f64 55%,#4a4a40); }
+.hunt-info{ flex:1; min-width:0; }
+.hunt-name{ font-size:13.5px; color:var(--ink); font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hunt-meta{ font-size:11px; color:var(--ink-soft); margin-top:2px; display:flex; gap:8px; flex-wrap:wrap; }
+.hunt-stars{ color:#c8800a; letter-spacing:.05em; }
+.hunt-exp{ font-family:'DotGothic16'; color:var(--seal); }
+.hunt-date{ opacity:.6; }
+.hunt-review{
+  font-size:11px; line-height:1.6; color:#5a4530; font-style:italic;
+  border-left:2px solid rgba(181,64,46,.25); padding-left:8px; margin-top:5px;
+}
+
+.empty{ text-align:center; padding:3rem 1rem; }
+.empty-icon{ font-size:2.5rem; margin-bottom:1rem; }
+.empty-txt{ font-family:'DotGothic16'; color:var(--gold); font-size:1rem; }
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <a href="/" class="page-back">← 回酒館</a>
+
+  {% if total_hunts == 0 %}
+  <div class="empty">
+    <div class="empty-icon">📖</div>
+    <div class="empty-txt">尚無討伐紀錄</div>
+    <p style="color:#9a8259;font-size:12px;margin-top:8px">接下懸賞令並完成討伐，紀錄將收錄於此。</p>
+  </div>
+  {% else %}
+
+  <!-- 統計概覽 -->
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="val">{{ total_hunts }}</div>
+      <div class="lbl">總討伐數</div>
+    </div>
+    <div class="stat">
+      <div class="val">{{ grouped | length }}</div>
+      <div class="lbl">踏足地區</div>
+    </div>
+    <div class="stat">
+      <div class="val">{{ level_info.level }}</div>
+      <div class="lbl">等級</div>
+    </div>
+  </div>
+
+  <!-- 台南制霸圖 -->
+  <div class="section-title">🗺 台南制霸圖</div>
+  <div class="map-grid">
+    {% for d in all_districts %}
+    {%- set cnt = district_counts.get(d, 0) -%}
+    {%- if cnt >= 25 -%}{%- set tier = 'tier-champ' -%}
+    {%- elif cnt >= 10 -%}{%- set tier = 'tier-snake' -%}
+    {%- elif cnt >= 5 -%}{%- set tier = 'tier-2' -%}
+    {%- elif cnt >= 1 -%}{%- set tier = 'tier-1' -%}
+    {%- else -%}{%- set tier = '' -%}
+    {%- endif -%}
+    <a href="{% if cnt > 0 %}#dist-{{ d }}{% else %}javascript:void(0){% endif %}"
+       class="map-cell {{ tier }}{% if cnt > 0 %} has-hunts{% endif %}">
+      <div class="map-cell-name">{{ d[:-1] }}</div>
+      {% if cnt > 0 %}<div class="map-cell-cnt">{{ cnt }}</div>{% endif %}
+      {%- if tier == 'tier-champ' %}<div class="map-cell-badge">✦制霸</div>
+      {%- elif tier == 'tier-snake' %}<div class="map-cell-badge">★蛇</div>
+      {%- endif %}
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- 稱號陳列櫃 / 進度 -->
+  {% if earned_titles or district_progress %}
+  <div class="section-title">🏆 稱號陳列櫃</div>
+  <div class="title-cabinet">
+    {% if earned_titles %}
+    <div class="title-chips">
+      {% for d, title in earned_titles %}
+      <span class="title-chip {% if title == '制霸者' %}champ{% else %}snake{% endif %}">{{ d }}{{ title }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% if district_progress %}
+    <div>
+      {% for d, cnt in district_progress %}
+      {%- if cnt < 10 %}
+      <div class="prog-row">
+        <div class="prog-lbl"><span>{{ d }} → 地頭蛇</span><span>{{ cnt }}/10</span></div>
+        <div class="prog-track"><div class="prog-fill" style="width:{{ [cnt * 10, 100] | min }}%"></div></div>
+      </div>
+      {%- else %}
+      <div class="prog-row">
+        <div class="prog-lbl"><span>{{ d }} → 制霸者</span><span>{{ cnt }}/25</span></div>
+        <div class="prog-track"><div class="prog-fill" style="width:{{ [(cnt - 10) * 100 // 15, 100] | min }}%"></div></div>
+      </div>
+      {%- endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- 討伐戰果卡牆 -->
+  <div class="section-title">📜 討伐戰果</div>
+  {% for district, hunts in grouped | dictsort %}
+  {%- set cnt = district_counts.get(district, 0) -%}
+  <div class="region" id="dist-{{ district }}">
+    <div class="region-head">
+      <span class="region-name">📍 {{ district }}</span>
+      {% if cnt >= 25 %}
+        <span class="region-badge champ">制霸者 ✦</span>
+      {% elif cnt >= 10 %}
+        <span class="region-badge">地頭蛇</span>
+      {% endif %}
+    </div>
+
+    {% for h in hunts %}
+    {%- set shop = shops_map.get(h.shop_id) -%}
+    {%- set grade = 'C' -%}
+    {%- if shop and shop.rating -%}
+      {%- set r = shop.rating | float -%}
+      {%- if r >= 4.6 -%}{%- set grade = 'S' -%}
+      {%- elif r >= 4.2 -%}{%- set grade = 'A' -%}
+      {%- elif r >= 3.8 -%}{%- set grade = 'B' -%}
+      {%- endif -%}
+    {%- endif -%}
+    <div class="hunt-card{% if grade == 'S' %} s-grade{% endif %}">
+      <div class="grade-dot {{ grade }}">{{ grade }}</div>
+      <div class="hunt-info">
+        <div class="hunt-name">{{ shop.name if shop else '（店家已下架）' }}</div>
+        <div class="hunt-meta">
+          {% if h.player_rating %}
+          <span class="hunt-stars">{{ '★' * h.player_rating }}{{ '☆' * (5 - h.player_rating) }}</span>
+          {% endif %}
+          <span class="hunt-exp">+{{ h.exp_gained }} EXP</span>
+          <span class="hunt-date">{{ h.completed_at[:10] }}</span>
+        </div>
+        {% if h.review_text %}
+        <div class="hunt-review">「{{ h.review_text }}」</div>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+
+  {% endif %}
+</div>
+{% endblock %}

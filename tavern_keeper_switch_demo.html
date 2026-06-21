@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>酒館・三店主切換示範</title>
+<link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --parch:#f0e2c0; --parch-dark:#e3d0a4; --ink:#3a2c18;
+    --seal:#b5402e; --gold:#e0b04a; --gold-deep:#a87a1e; --ember:#ff8a3d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Noto Sans TC',sans-serif;max-width:430px;margin:0 auto;
+    min-height:100vh;color:var(--parch);background:#15100b;position:relative;overflow-x:hidden}
+
+  /* ===== 店主大圖背景 ===== */
+  .keeper-bg{position:fixed;inset:0;max-width:430px;margin:0 auto;z-index:0;
+    background-size:cover;background-position:center top;transition:opacity .5s ease}
+  /* 佔位:真實版改成 background-image:url(.../keeper_xxx.png) */
+  .keeper-bg.dad{background:linear-gradient(160deg,#5a4530,#3a2817 60%,#241a11)}
+  .keeper-bg.hunk{background:linear-gradient(160deg,#4a3a28,#322415 60%,#1d1409)}
+  .keeper-bg.lady{background:linear-gradient(160deg,#5a2a28,#3a1d1a 60%,#241010)}
+
+  /* 佔位人物剪影(真圖會取代) */
+  .keeper-silhouette{position:fixed;left:50%;top:6%;transform:translateX(-50%);z-index:1;
+    width:200px;height:340px;border-radius:100px 100px 0 0;
+    background:radial-gradient(ellipse at 50% 30%, rgba(255,255,255,.08), transparent 60%);
+    border:2px dashed rgba(255,255,255,.15);display:flex;align-items:flex-start;justify-content:center;
+    padding-top:30px;font-size:12px;color:rgba(255,255,255,.4);font-family:'DotGothic16';text-align:center;max-width:90vw}
+
+  /* ===== 由下往上的暗色漸層:讓下半部沉下來放 UI ===== */
+  .scrim{position:fixed;inset:0;max-width:430px;margin:0 auto;z-index:2;pointer-events:none;
+    background:linear-gradient(180deg,
+      rgba(20,14,8,0) 0%, rgba(20,14,8,.1) 38%, rgba(20,14,8,.7) 62%, rgba(20,14,8,.96) 100%)}
+  /* 頂部也壓一點,讓招牌看得清 */
+  .scrim-top{position:fixed;top:0;left:0;right:0;max-width:430px;margin:0 auto;height:140px;z-index:2;pointer-events:none;
+    background:linear-gradient(180deg, rgba(20,14,8,.85), transparent)}
+
+  .wrap{position:relative;z-index:3;padding:18px 18px 40px;min-height:100vh;display:flex;flex-direction:column}
+
+  /* 招牌(置頂) */
+  .crest{text-align:center}
+  .crest .eyebrow{font-family:'DotGothic16';font-size:10px;letter-spacing:.4em;color:var(--gold-deep);text-indent:.4em}
+  .crest h1{font-family:'DotGothic16';font-size:24px;letter-spacing:.06em;color:var(--gold);margin-top:3px;
+    text-shadow:0 2px 0 #160f08,0 0 18px rgba(255,180,90,.3)}
+
+  /* 切換店主鈕(右上角) */
+  .switch{position:absolute;top:14px;right:14px;z-index:5;
+    display:flex;align-items:center;gap:5px;cursor:pointer;
+    background:rgba(20,14,8,.6);border:1px solid rgba(224,176,74,.4);border-radius:20px;
+    padding:6px 12px;font-family:'DotGothic16';font-size:11px;color:var(--gold);
+    backdrop-filter:blur(4px)}
+  .switch:active{transform:scale(.95)}
+
+  .spacer{flex:1}
+
+  /* ===== 下半部 UI ===== */
+  /* 老闆對話框 */
+  .bubble{position:relative;margin:0 2px 16px;
+    background:linear-gradient(180deg,var(--parch),var(--parch-dark));color:var(--ink);
+    border-radius:12px;padding:13px 15px;box-shadow:0 6px 18px rgba(0,0,0,.5)}
+  .bubble .who{font-family:'DotGothic16';font-size:11px;color:var(--seal);letter-spacing:.1em;margin-bottom:3px}
+  .bubble .line{font-size:14.5px;line-height:1.6}
+
+  /* 執照卡(縮一點,放下半) */
+  .license{position:relative;margin:0 2px 16px;border-radius:10px;padding:13px 16px;overflow:hidden;
+    background:repeating-linear-gradient(135deg,rgba(255,255,255,.025) 0 2px,transparent 2px 8px),
+      linear-gradient(155deg,#2e4756,#28323f 55%,#1f2731);
+    border:1px solid rgba(224,176,74,.4);box-shadow:0 8px 22px rgba(0,0,0,.5)}
+  .license::after{content:"⚔";position:absolute;right:-8px;bottom:-18px;font-size:96px;color:rgba(224,176,74,.07);transform:rotate(-12deg)}
+  .lic-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .lic-label{font-family:'DotGothic16';font-size:9px;letter-spacing:.3em;color:#9fb4c4}
+  .lic-no{font-family:'DotGothic16';font-size:10px;color:var(--gold)}
+  .lic-name{font-family:'DotGothic16';font-size:19px;color:#fff}
+  .lic-rank{font-size:12px;color:var(--gold);font-weight:700;margin-top:1px}
+  .exp-track{height:7px;border-radius:4px;background:rgba(0,0,0,.4);overflow:hidden;border:1px solid rgba(0,0,0,.5);margin-top:9px}
+  .exp-fill{height:100%;width:0%;border-radius:4px;background:linear-gradient(90deg,var(--gold-deep),var(--gold) 70%,#ffe6a8);
+    box-shadow:0 0 8px rgba(224,176,74,.5);transition:width .8s ease}
+
+  /* 搜索此地 */
+  .hunt-btn{display:block;width:100%;margin:0 2px 12px;cursor:pointer;text-align:center;text-decoration:none;
+    font-family:'DotGothic16';font-size:18px;letter-spacing:.1em;color:#1a1008;border:none;border-radius:12px;padding:16px;
+    background:linear-gradient(180deg,#ffd071,#e0a942 60%,#c98e2c);
+    box-shadow:0 6px 0 #8a5e18,0 12px 24px rgba(224,176,74,.3)}
+  .hunt-btn .sub{display:block;font-family:'Noto Sans TC';font-size:10px;letter-spacing:.2em;color:#5a3a10;margin-top:2px;font-weight:500}
+
+  .row{display:flex;gap:10px;margin:0 2px}
+  .mini{flex:1;text-align:center;border-radius:10px;padding:12px 8px;text-decoration:none;
+    background:rgba(58,40,23,.7);border:1px solid rgba(224,176,74,.25);
+    font-family:'DotGothic16';font-size:12px;color:var(--parch);backdrop-filter:blur(2px)}
+  .mini .ic{font-size:18px;display:block;margin-bottom:3px}
+
+  .demo-tag{position:fixed;bottom:8px;left:50%;transform:translateX(-50%);z-index:9;
+    font-size:10px;color:#8a7250;font-family:'DotGothic16';background:rgba(0,0,0,.4);padding:4px 10px;border-radius:4px}
+</style>
+</head>
+<body>
+  <div class="keeper-bg dad" id="bg"></div>
+  <div class="keeper-silhouette" id="sil">立繪位置<br>(真圖放這)</div>
+  <div class="scrim"></div>
+  <div class="scrim-top"></div>
+
+  <div class="wrap">
+    <div class="crest">
+      <div class="eyebrow">FOOD HUNTER GUILD</div>
+      <h1>美食獵人協會</h1>
+    </div>
+    <div class="switch" id="switchBtn">⟳ <span id="keeperName">換店主</span></div>
+
+    <div class="spacer"></div>
+
+    <!-- 對話框 -->
+    <div class="bubble">
+      <div class="who" id="who">酒館老闆</div>
+      <div class="line" id="line">哎呀,獵人你來啦。</div>
+    </div>
+
+    <!-- 執照 -->
+    <div class="license">
+      <div class="lic-top"><span class="lic-label">獵 人 執 照</span><span class="lic-no">TW-2026-A3F09C</span></div>
+      <div class="lic-name">富毅(麥子)</div>
+      <div class="lic-rank">Lv.1　見習獵人</div>
+      <div class="exp-track"><div class="exp-fill" id="exp" data-pct="20"></div></div>
+    </div>
+
+    <!-- 搜索 -->
+    <a class="hunt-btn" href="#">⚔ 搜索此地<span class="sub">SEARCH NEARBY</span></a>
+
+    <div class="row">
+      <a class="mini" href="#"><span class="ic">🗺</span>遠征規劃</a>
+      <a class="mini" href="#"><span class="ic">📖</span>美食圖鑑</a>
+    </div>
+  </div>
+
+  <div class="demo-tag">▸ 點右上「換店主」切換三位立繪+台詞</div>
+
+<script>
+// 三店主資料(真實版 bg 換成 url(立繪檔))
+const KEEPERS = [
+  {id:'dad',  name:'老闆',   who:'酒館老闆',   img:'憨厚大叔',
+   lines:["哎呀,獵人你來啦。今晚的胃,準備好接懸賞了嗎?","坐吧坐吧,老樣子?還是今天想換個口味討伐?"]},
+  {id:'hunk', name:'店長',   who:'年輕店長',   img:'陽光帥哥',
+   lines:["歡迎回來,獵人。今天也要去開拓味蕾的疆界嗎?","這杯我請。挑張順手的懸賞,我等你凱旋的好消息。"]},
+  {id:'lady', name:'女主人', who:'酒館女主人', img:'紅衣女主人',
+   lines:["喲,稀客。今晚想討伐點什麼…我這兒的情報,可不便宜。","急著走?連杯酒都不喝就去狩獵,真是個無趣的獵人呢。"]},
+];
+
+let idx = 0;
+const bg = document.getElementById('bg');
+const sil = document.getElementById('sil');
+const who = document.getElementById('who');
+const line = document.getElementById('line');
+const keeperName = document.getElementById('keeperName');
+
+function applyKeeper(){
+  const k = KEEPERS[idx];
+  bg.className = 'keeper-bg ' + k.id;
+  sil.innerHTML = '立繪位置<br>(' + k.img + ')';
+  who.textContent = k.who;
+  // 依時段挑台詞(這裡簡化:隨機一句)
+  line.textContent = k.lines[Math.floor(Math.random()*k.lines.length)];
+  keeperName.textContent = k.name;
+}
+document.getElementById('switchBtn').addEventListener('click', ()=>{
+  idx = (idx+1) % KEEPERS.length;
+  bg.style.opacity = 0;
+  setTimeout(()=>{ applyKeeper(); bg.style.opacity = 1; }, 250);
+});
+
+window.addEventListener('load', ()=>{
+  applyKeeper();
+  setTimeout(()=>{ document.getElementById('exp').style.width = '20%'; }, 300);
+});
+</script>
+</body>
+</html>
