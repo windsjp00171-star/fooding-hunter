@@ -445,3 +445,9 @@ def dex():
 @bp.route('/ping')
 def ping():
     return 'ok', 200
+
+
+@bp.route('/robots.txt')
+def robots_txt():
+    from flask import Response
+    return Response('User-agent: *\nDisallow: /\n', mimetype='text/plain')
